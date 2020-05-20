@@ -1,12 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import Typography from '@material-ui/core/Typography';
+
 
 import colors from 'constants/Color';
 import { Option } from 'core/util';
 
 
-const Credit = styled.span<{valid: number}>`
+const Credit = styled(Typography)<{valid: number}>`
 font-size: 20px;
 margin-top: 13px;
 margin-left: 10px;

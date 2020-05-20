@@ -9,7 +9,7 @@ import { Option } from 'core/util';
 
 const DividerContainer = styled.div`
 margin-top: 10px;
-`
+`;
 
 const OptionDivider: React.FunctionComponent<{option: Option}> = (props) => {
     return (

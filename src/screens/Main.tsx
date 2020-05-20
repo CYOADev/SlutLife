@@ -20,7 +20,7 @@ const MainContainer = styled.div`
 background-color: ${colors.BackgroundColor};
 min-height: 100vh;
 padding: 20px;
-`
+`;
 
 const theme = createMuiTheme({
     palette: {

@@ -1,6 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import Typography from '@material-ui/core/Typography';
+
 
 import colors from 'constants/Color';
 import { Option, get_conf_checked } from 'core/util';
@@ -18,7 +20,7 @@ font-size: 13px;
 color: ${props => props.valid ? colors.ValidText : colors.InvalidText};
 `
 
-const ConflictText = styled.span<{value: number}>`
+const ConflictText = styled(Typography)<{value: number}>`
 color: ${props => props.value ? colors.UncheckedColor : colors.CheckedColor};
 `;
 
@@ -33,7 +35,7 @@ const OptionConflict: React.FunctionComponent<{
     state: RootState,
     valid: boolean,
 }> = (props) => {
-    const {option, state, valid} = props;
+    const { option, state, valid } = props;
     const conflict_checked = get_conf_checked(option, state);
     const conflict_string = option.conflict_string || [];
     let result: JSX.Element[] = [];

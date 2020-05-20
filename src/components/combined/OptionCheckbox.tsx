@@ -1,11 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
+import { connect, useStore } from 'react-redux';
 
 import Checkbox from '@material-ui/core/Checkbox';
 import Favorite from '@material-ui/icons/Favorite';
 import FavoriteBorder from '@material-ui/icons/FavoriteBorder';
-
-import { connect, useStore } from 'react-redux';
 
 
 import { Option, ALL_OPTIONS } from 'core/util';
@@ -26,7 +25,7 @@ flex-direction: row;
 `;
 
 const OptionCheckbox: React.FunctionComponent<OptionPropType> = (props) => {
-    const {option_idx, valid, value, UpdateOptionValue} = props;
+    const { option_idx, valid, value, UpdateOptionValue } = props;
     let boolean_value = value as boolean;
     let option: Option = ALL_OPTIONS[option_idx];
     let state: RootState = useStore().getState();

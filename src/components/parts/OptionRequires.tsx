@@ -1,6 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import Typography from '@material-ui/core/Typography';
+
 
 import colors from 'constants/Color';
 import { Option, get_requ_checked } from 'core/util';
@@ -18,7 +20,7 @@ font-size: 13px;
 color: ${props => props.valid ? colors.InvalidText : colors.ValidText};
 `;
 
-const RequiresText = styled.span<{value: number}>`
+const RequiresText = styled(Typography)<{value: number}>`
 color: ${props => props.value ? colors.UncheckedColor : colors.CheckedColor};
 `;
 
@@ -52,7 +54,7 @@ const OptionRequires: React.FunctionComponent<{
     state: RootState,
     valid: boolean,
 }> = (props) => {
-    const {option, state, valid} = props;
+    const { option, state, valid } = props;
     const requires_checked = get_requ_checked(option, state);
     const requires_string = option.requires_string || [];
     let result: JSX.Element[] = [];

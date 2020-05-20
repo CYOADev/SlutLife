@@ -1,9 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
+import { connect, useStore } from 'react-redux';
 
 import TextField from '@material-ui/core/TextField';
-
-import { connect, useStore } from 'react-redux';
 
 
 import { Option, ALL_OPTIONS } from 'core/util';
@@ -46,7 +45,7 @@ const getNumber = (elem: HTMLInputElement, max: number) => {
 }
 
 const OptionNumeric: React.FunctionComponent<OptionPropType> = (props) => {
-    const {option_idx, valid, value, UpdateOptionValue} = props;
+    const { option_idx, valid, value, UpdateOptionValue } = props;
     let option: Option = ALL_OPTIONS[option_idx];
     let max = Infinity;
     if (option.type[0].length > 1) {

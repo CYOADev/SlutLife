@@ -1,12 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import Typography from '@material-ui/core/Typography';
+
 
 import colors from 'constants/Color';
 import { Option } from 'core/util';
 
 
-const Title = styled.span<{valid: number}>`
+const Title = styled(Typography)<{valid: number}>`
 margin-bottom: 10px;
 margin-top: 10px;
 font-size: 24px;

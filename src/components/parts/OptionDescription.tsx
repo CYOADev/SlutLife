@@ -1,6 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import Typography from '@material-ui/core/Typography';
+
 
 import colors from 'constants/Color';
 import { Option } from 'core/util';
@@ -8,9 +10,9 @@ import { Option } from 'core/util';
 
 const DescriptionContainer = styled.div`
 margin-left: 10px;
-`
+`;
 
-const Description = styled.span<{valid: number}>`
+const Description = styled(Typography)<{valid: number}>`
 color: ${props => props.valid ? colors.ValidText : colors.InvalidText};
 `;
 

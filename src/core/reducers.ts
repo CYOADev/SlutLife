@@ -10,7 +10,6 @@ const get_num_requ = (idx: number) => {
     return (ALL_OPTIONS[idx].requires || []).length;
 }
 
-
 const does_change = (idx: number, prev_id: number | string, new_state: OptionStateInterface[]) => {
     let requires = ALL_OPTIONS[idx].requires || [];
     for (let i = 0; i < requires.length; i++) {
@@ -44,7 +43,6 @@ const does_change = (idx: number, prev_id: number | string, new_state: OptionSta
     return false;
 }
 
-
 const get_credit_change = (new_state: RootState, id: number, value: ValueType) => {
     let num_credits = ALL_OPTIONS[id].credits;
     let old_value = new_state.option[id].value;
@@ -64,7 +62,6 @@ const get_credit_change = (new_state: RootState, id: number, value: ValueType) =
     new_state.option[id].value = value;
     return old_value;
 }
-
 
 const propogateTruthy = (idx: number, new_state: RootState) => {
     let other_requ = ALL_OPTIONS[idx].other_requ || [];
@@ -93,7 +90,6 @@ const propogateTruthy = (idx: number, new_state: RootState) => {
     }
 }
 
-
 const propogateFalsy = (idx: number, new_state: RootState) => {
     let other_requ = ALL_OPTIONS[idx].other_requ || [];
     for (let i = 0; i < other_requ.length; i++) {
@@ -120,7 +116,6 @@ const propogateFalsy = (idx: number, new_state: RootState) => {
     }
 }
 
-
 const ChangeOptionState = (state: RootState, value: ValueType, id: number) => {
     return produce(state, new_state => {
         let old_value = get_credit_change(new_state, id, value);
@@ -134,13 +129,11 @@ const ChangeOptionState = (state: RootState, value: ValueType, id: number) => {
     })
 };
 
-
 const ChangeTabState = (state: RootState, id: number) => {
     return produce(state, new_state => {
         new_state.page_id = id;
     });
 };
-
 
 const Reducer = (state: RootState = {option: [], credits: 0, page_id: 0}, action: ActionInterface) => {
     switch (action.type) {

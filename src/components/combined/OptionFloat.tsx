@@ -48,7 +48,7 @@ const getNumber = (elem: HTMLInputElement, min: number, max: number) => {
 }
 
 const OptionFloat: React.FunctionComponent<OptionPropType> = (props) => {
-    const {option_idx, valid, value, UpdateOptionValue} = props;
+    const { option_idx, valid, value, UpdateOptionValue } = props;
     let option: Option = ALL_OPTIONS[option_idx];
     let min: number = (option.type[0][1] || 0) as number;
     let max: number = (option.type[0][2] || 0) as number;

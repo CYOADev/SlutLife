@@ -48,7 +48,6 @@ const get_requ_string = (requires: RequiresType) => {
     return requires_string;
 }
 
-
 const get_conf_string = (conflict: ConflictType) => {
     let conflict_string: string[] = [];
     for (let i = 0; i < conflict.length; i++) {
@@ -67,7 +66,6 @@ const get_conf_string = (conflict: ConflictType) => {
     }
     return conflict_string;
 }
-
 
 interface Option extends OptionInterface {}
 class Option {
@@ -97,13 +95,11 @@ class Option {
     }
 }
 
-
 const OPTION_DATA = SHEET_DATA['option_data'];
 let ALL_OPTIONS: OptionInterface[] = [];
 let LAYOUT_DATA: ((string | number)[])[] = SHEET_DATA['layout_data'];
 // const VARIABLES = SHEET_DATA['variables'];
 const COL_NAMES = SHEET_DATA['col_names'];
-
 
 function Initialize() {
     for (let i = 0; i < OPTION_DATA.length; i++) {
@@ -121,7 +117,6 @@ function Initialize() {
     }
 }
 
-
 function constructOption(idx: number) {
     switch (ALL_OPTIONS[idx].type[0][0]) {
         case OptionTypes.BO:
@@ -136,7 +131,6 @@ function constructOption(idx: number) {
             return <OptionText option_idx={idx} key={idx}/>
     }
 }
-
 
 const get_requ_checked = (option: Option, state: RootState) => {
     let requires = option.requires || [];
@@ -181,7 +175,6 @@ const get_requ_checked = (option: Option, state: RootState) => {
     return requires_checked;
 }
 
-
 const get_conf_checked = (option: Option, state: RootState) => {
     let conflict = option.conflict || [];
     let conflict_checked: boolean[] = [];
@@ -204,7 +197,6 @@ const get_conf_checked = (option: Option, state: RootState) => {
     }
     return conflict_checked;
 }
-
 
 export { Initialize, ALL_OPTIONS, LAYOUT_DATA, COL_NAMES, Option,
     constructOption, get_requ_checked, get_conf_checked };

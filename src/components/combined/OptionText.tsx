@@ -1,9 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
+import { connect, useStore } from 'react-redux';
 
 import TextField from '@material-ui/core/TextField';
-
-import { connect, useStore } from 'react-redux';
 
 
 import { Option, ALL_OPTIONS } from 'core/util';
@@ -31,7 +30,7 @@ width: 144px;
 `;
 
 const OptionText: React.FunctionComponent<OptionPropType> = (props) => {
-    const {option_idx, valid, value, UpdateOptionValue} = props;
+    const { option_idx, valid, value, UpdateOptionValue } = props;
     let string_value = value as string;
     if (typeof value === "boolean") {
         string_value = "";
