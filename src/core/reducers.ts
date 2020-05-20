@@ -1,23 +1,21 @@
 import produce from 'immer';
 
 
-import { ALL_OPTIONS } from 'core/util';
+import { ALL_OPTIONS, VARIABLES } from 'core/util';
 import { Actions } from 'core/actions';
-import { ValueType, OptionStateInterface, ActionInterface, RootState } from 'core/types';
+import { ValueType, OptionStateInterface, ActionInterface, RootState, VariableStateInterface } from 'core/types';
 
 
 const get_num_requ = (idx: number) => {
     return (ALL_OPTIONS[idx].requires || []).length;
 }
 
-const does_change = (idx: number, prev_id: number | string, new_state: OptionStateInterface[]) => {
+const does_change = (idx: number, prev_id: number, new_state: RootState) => {
     let requires = ALL_OPTIONS[idx].requires || [];
     for (let i = 0; i < requires.length; i++) {
         let require = requires[i];
-        if (typeof require === "number" || typeof require === "string") {
-            if (prev_id === require) {
-                return true;
-            }
+        if (typeof require === "number" && prev_id === require) {
+            return true;
         } else if (typeof require === "object") {
             let matches = false;
             let has_elem = false;
@@ -25,12 +23,10 @@ const does_change = (idx: number, prev_id: number | string, new_state: OptionSta
                 let require_elem = require[j];
                 if (require_elem === prev_id) {
                     has_elem = true;
-                } else if (typeof require_elem === "string") {
-                    // TODO: stuff
-                } else if (typeof require_elem === "number") {
-                    if (require_elem < 0) {
-                        // TODO: variable stuff
-                    } else if (new_state[require_elem].value) {
+                } else {
+                    if (require_elem < 0 && new_state.variables[-(require_elem + 1)].value) {
+                        matches = true;
+                    } else if (new_state.option[require_elem].value) {
                         matches = true;
                     }
                 }
@@ -60,13 +56,18 @@ const get_credit_change = (new_state: RootState, id: number, value: ValueType) =
     }
     new_state.credits += (new_value_number - old_value_number) * num_credits
     new_state.option[id].value = value;
-    return old_value;
+    return { old_value, old_value_number, new_value_number };
 }
 
-const propogateTruthy = (idx: number, new_state: RootState) => {
-    let other_requ = ALL_OPTIONS[idx].other_requ || [];
+const propogateTruthy = (idx: number, new_state: RootState, filter=-1) => {
+    let other_requ: number[];
+    if (idx >= 0) {
+        other_requ = ALL_OPTIONS[idx].other_requ || [];
+    } else {
+        other_requ = VARIABLES[-(idx + 1)][1];
+    }
     for (let i = 0; i < other_requ.length; i++) {
-        if (does_change(other_requ[i], idx, new_state.option)) {
+        if (does_change(other_requ[i], idx, new_state)) {
             let valid_num = ++new_state.option[other_requ[i]].valid_num;
             if (valid_num === get_num_requ(other_requ[i])) {
                 new_state.option[other_requ[i]].valid = true;
@@ -76,29 +77,44 @@ const propogateTruthy = (idx: number, new_state: RootState) => {
         }
     }
 
-    let other_conf = ALL_OPTIONS[idx].other_conf || [];
+    let other_conf: number[];
+    if (idx >= 0) {
+        other_conf = ALL_OPTIONS[idx].other_conf || [];
+    } else {
+        other_conf = VARIABLES[-(idx + 1)][2];
+    }
     for (let i = 0; i < other_conf.length; i++) {
+        if (other_conf[i] === filter) {
+            continue;
+        }
         let valid_num = --new_state.option[other_conf[i]].valid_num;
         let num_requ = get_num_requ(other_conf[i])
         if (valid_num !== num_requ) {
-            let old_value = get_credit_change(new_state, other_conf[i], false);
+            let { old_value, old_value_number } = get_credit_change(new_state, other_conf[i], false);
             if (old_value) {
                 propogateFalsy(other_conf[i], new_state);
+                changeVariables(other_requ[i], old_value_number, 0, new_state);
             }
             new_state.option[other_conf[i]].valid = false;
         }
     }
 }
 
-const propogateFalsy = (idx: number, new_state: RootState) => {
-    let other_requ = ALL_OPTIONS[idx].other_requ || [];
+const propogateFalsy = (idx: number, new_state: RootState, filter=-1) => {
+    let other_requ: number[];
+    if (idx >= 0) {
+        other_requ = ALL_OPTIONS[idx].other_requ || [];
+    } else {
+        other_requ = VARIABLES[-(idx + 1)][1];
+    }
     for (let i = 0; i < other_requ.length; i++) {
-        if (does_change(other_requ[i], idx, new_state.option)) {
+        if (does_change(other_requ[i], idx, new_state)) {
             let valid_num = --new_state.option[other_requ[i]].valid_num;
             if (valid_num !== get_num_requ(other_requ[i])) {
-                let old_value = get_credit_change(new_state, other_requ[i], false);
+                let { old_value, old_value_number } = get_credit_change(new_state, other_requ[i], false);
                 if (old_value) {
                     propogateFalsy(other_requ[i], new_state);
+                    changeVariables(other_requ[i], old_value_number, 0, new_state);
                 }
                 new_state.option[other_requ[i]].valid = false;
             }
@@ -107,8 +123,16 @@ const propogateFalsy = (idx: number, new_state: RootState) => {
         }
     }
 
-    let other_conf = ALL_OPTIONS[idx].other_conf || [];
+    let other_conf: number[];
+    if (idx >= 0) {
+        other_conf = ALL_OPTIONS[idx].other_conf || [];
+    } else {
+        other_conf = VARIABLES[-(idx + 1)][2];
+    }
     for (let i = 0; i < other_conf.length; i++) {
+        if (other_conf[i] === filter) {
+            continue;
+        }
         let valid_num = ++new_state.option[other_conf[i]].valid_num;
         if (valid_num === get_num_requ(other_conf[i])) {
             new_state.option[other_conf[i]].valid = true;
@@ -116,10 +140,46 @@ const propogateFalsy = (idx: number, new_state: RootState) => {
     }
 }
 
+const propogateVariables = (
+    id: number, op_id: number, old_val: number, new_val: number, new_state: RootState
+) => {
+    new_state.variables[id].value = new_val;
+    if (old_val === 0 && new_val !== 0) {
+        propogateTruthy(-(id + 1), new_state, op_id);
+    } else if (old_val !== 0 && new_val === 0) {
+        propogateFalsy(-(id + 1), new_state, op_id);
+    }
+};
+
+const changeVariables = (id: number, old_val: number, new_val: number, new_state: RootState) => {
+    const option = ALL_OPTIONS[id];
+    if (option.variables) {
+        for (let i = 0; i < option.variables.length; i++) {
+            let variable_op = option.variables[i];
+            let old_var_val: number;
+            let new_var_val: number;
+            if (typeof variable_op === "number") {
+                old_var_val = new_state.variables[variable_op].value;
+                new_var_val = old_var_val - old_val + new_val;
+                propogateVariables(variable_op, id, old_var_val, new_var_val, new_state);
+            } else if (typeof option.variables[i] === "object") {
+                let var_idx = variable_op[0];
+                old_var_val = new_state.variables[var_idx].value;
+                new_var_val = variable_op[1];
+                propogateVariables(var_idx, id, old_var_val, new_var_val, new_state);
+            } else {
+                console.error("variable op is not of type number or object");
+                return;
+            }
+        }
+    }
+}
+
 const ChangeOptionState = (state: RootState, value: ValueType, id: number) => {
     return produce(state, new_state => {
-        let old_value = get_credit_change(new_state, id, value);
+        let { old_value, old_value_number, new_value_number } = get_credit_change(new_state, id, value);
         if (!old_value !== !value) {
+            changeVariables(id, old_value_number, new_value_number, new_state);
             if (value) {
                 propogateTruthy(id, new_state);
             } else {
@@ -135,7 +195,10 @@ const ChangeTabState = (state: RootState, id: number) => {
     });
 };
 
-const Reducer = (state: RootState = {option: [], credits: 0, page_id: 0}, action: ActionInterface) => {
+const Reducer = (
+    state: RootState = {option: [], variables: [], credits: 0, page_id: 0},
+    action: ActionInterface
+) => {
     switch (action.type) {
         case Actions.CHANGE_OPTION_STATE:
             return ChangeOptionState(state, action.payload.value, action.payload.id);
@@ -157,7 +220,13 @@ const GetInitialState = () => {
             update_val: 0,
         }
     }
-    return {option: OptionInitialState, credits: 0, page_id: 0};
+    let VariableInitialState: VariableStateInterface[] = Array(VARIABLES.length);
+    for (let i = 0; i < VARIABLES.length; i++) {
+        VariableInitialState[i] = {
+            value: 0,
+        }
+    }
+    return {option: OptionInitialState, variables: VariableInitialState, credits: 0, page_id: 0};
 }
 
 export { Reducer, GetInitialState };

@@ -50,8 +50,8 @@ const getNumber = (elem: HTMLInputElement, min: number, max: number) => {
 const OptionFloat: React.FunctionComponent<OptionPropType> = (props) => {
     const { option_idx, valid, value, UpdateOptionValue } = props;
     let option: Option = ALL_OPTIONS[option_idx];
-    let min: number = (option.type[0][1] || 0) as number;
-    let max: number = (option.type[0][2] || 0) as number;
+    let min: number = (option.type[1] || 0) as number;
+    let max: number = (option.type[2] || 0) as number;
     let float_value = (typeof value === "number") ? round(value as number + min) : "";
     let state: RootState = useStore().getState();
     return (
@@ -65,8 +65,8 @@ const OptionFloat: React.FunctionComponent<OptionPropType> = (props) => {
                      onChange={e => UpdateOptionValue(getNumber(e.target as HTMLInputElement, min, max))}/>
                 </NumericContainer>
             </Container>
-            <OptionRequires option={option} state={state} valid={valid}/>
-            <OptionConflict option={option} state={state} valid={valid}/>
+            <OptionRequires option_idx={option_idx} state={state} valid={valid}/>
+            <OptionConflict option_idx={option_idx} state={state} valid={valid}/>
             <OptionDescription option={option} valid={valid}/>
         </div>
     );

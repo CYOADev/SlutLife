@@ -7,19 +7,18 @@ export enum Labels {
     DETAILS = '2',
     REQUIRES = '3',
     CONFLICT = '4',
-    AFFECT = '5',
-    EFFECT = '6',
-    ROOMMATES = '7',
-    SALARY = '8',
-    TIME = '9',
+    AFFECT = '5',  // Not Implemented
+    ROOMMATES = '6',  // Not Implemented
+    SALARY = '7',  // Not Implemented
+    TIME = '8',  // Not Implemented
 
-    TYPE = '10',
-    IS_PARENT = '11',
+    TYPE = '9',
+    IS_PARENT = '10',
 
-    OTHER_REQU = '12',
-    OTHER_CONF = '13',
-    OTHER_NUMERIC = '14',
-    OTHER_EVERY = '15',
+    OTHER_REQU = '11',
+    OTHER_CONF = '12',
+
+    VARIABLE = '13',
 }
 
 export enum OptionTypes {
@@ -36,22 +35,7 @@ export enum OptionTypes {
     CO = 10,
 }
 
-export enum OtherOptionTypes {
-    NOTHING = 0,
-    SET = 1,
-    SET_VALUE = 2,
-}
-
 export type ValueType = number | number[] | boolean | string;
-
-export type OptionIDType = string | number;
-
-export interface OptionStateInterface {
-    value: ValueType;
-    valid: boolean;
-    valid_num: number;
-    update_val: number;
-}
 
 export interface ActionInterface {
     type: Actions;
@@ -61,33 +45,48 @@ export interface ActionInterface {
     }
 }
 
-export type RequiresType = (OptionIDType | OptionIDType[])[];
+export type RequiresType = (number | number[])[];
 
-export type ConflictType = OptionIDType[];
+export type ConflictType = number[];
+
+export type VariableType = [string, number[], number[]][];
 
 export interface OptionInterface {
     name: string;
     credits: number;
     details: string;
 
-    requires?: (OptionIDType | OptionIDType[])[];
-    conflict?: OptionIDType[];
+    requires?: RequiresType;
+    conflict?: ConflictType;
     roommates?: number;
     salary?: number;
 
-    type: [[OptionTypes, (number | string)?, (number | string)?],
-            [OtherOptionTypes, (string | ([string, number]))?]];
+    type: [OptionTypes, number?, number?];
     is_parent: boolean;
 
     other_requ: number[];
     other_conf: number[];
 
+    variables?: (number | [number, number])[];
+
     requires_string?: (string | string[])[];
     conflict_string?: string[];
 }
 
+export interface OptionStateInterface {
+    value: ValueType;
+    valid: boolean;
+    valid_num: number;
+    update_val: number;
+}
+
+export interface VariableStateInterface {
+    value: number;
+}
+
 export interface RootState {
     option: OptionStateInterface[],
+    variables: VariableStateInterface[],
     credits: number,
     page_id: number,
 }

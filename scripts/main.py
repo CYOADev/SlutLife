@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from collections import defaultdict
 from enum import IntEnum
 import pickle
 import json
@@ -13,7 +12,6 @@ from column_names import col_names
 
 options = []
 variables = []
-conf_excl_all = defaultdict(list)
 
 
 # Helper functions for getting data
@@ -41,18 +39,19 @@ class Labels(IntEnum):
     REQUIRES = 3
     CONFLICT = 4
     AFFECT = 5
-    EFFECT = 6
-    ROOMMATES = 7
-    SALARY = 8
-    TIME = 9
+    ROOMMATES = 6
+    SALARY = 7
+    TIME = 8
 
-    TYPE = 10
-    IS_PARENT = 11
+    TYPE = 9
+    IS_PARENT = 10
 
-    OTHER_REQU = 12
-    OTHER_CONF = 13
-    OTHER_NUMERIC = 14
-    OTHER_EVERY = 15
+    OTHER_REQU = 11
+    OTHER_CONF = 12
+
+    VARIABLE = 13
+
+    EFFECT = 100  # not used
 
 
 class Types(IntEnum):
@@ -129,11 +128,11 @@ class Option():
 
     def process_type(self, data):
         types = [i.strip() for i in data.split(',')]
-        result = [self.process_first_type(types[0])]
+        result = self.process_first_type(types[0])
+        if len(types) > 1:
+            self.data[Labels.VARIABLE] = []
         for i in types[1:]:
-            res_type = self.process_other_type(i)
-            if res_type[0] != 0:
-                result.append(res_type)
+            self.process_other_type(i)
         return result
 
     TYPE_MAPS = {
@@ -161,12 +160,13 @@ class Option():
 
     def process_other_type(self, data):
         if data[:3] == 'WIP':
-            return (OtherOptionTypes.NOTHING,)  # TODO: implement
+            return
         elif data[:3] == 'SET':
             name = ' '.join(data.split(' ')[1:-1]).strip()
             val = int(data.split(' ')[-1].strip())
-            return (OtherOptionTypes.SET_VALUE, (name, val))
-        return (OtherOptionTypes.SET, data.strip())
+            self.data[Labels.VARIABLE].append([name, val])
+        else:
+            self.data[Labels.VARIABLE].append(data.strip())
 
     def handle_nu(self, data):
         if len(data) > 2:
@@ -304,12 +304,29 @@ def find_option_by_name(name):
     return name
 
 
-def add_variable(name):
+def find_variable_by_name(name):
     for idx, i in enumerate(variables):
         if name == i.name:
             return i.variable_id
     variables.append(Variable(name))
     return variables[-1].variable_id
+
+
+def find_var_pos_by_name(name):
+    for idx, i in enumerate(variables):
+        if name == i.name:
+            return get_idx_from_id(i.variable_id)
+    print(f"Variable {name} not found")
+    variables.append(Variable(name))
+    return get_idx_from_id(variables[-1].variable_id)
+
+
+def get_idx_from_id(var_id):
+    return -(var_id + 1)
+
+
+def get_variable_from_id(var_id):
+    return variables[get_idx_from_id(var_id)]
 
 
 def opt_add_other_req(cur_id, other_id):
@@ -318,8 +335,8 @@ def opt_add_other_req(cur_id, other_id):
     options[other_id].data[Labels.OTHER_REQU].append(cur_id)
 
 
-def var_add_other_req(cur_id, var_id):
-    variables[-(var_id + 1)].requ.append(cur_id)
+def var_add_req(cur_id, var_id):
+    get_variable_from_id(var_id).requ.append(cur_id)
 
 
 def opt_add_other_conf(cur_id, other_id):
@@ -328,8 +345,14 @@ def opt_add_other_conf(cur_id, other_id):
     options[other_id].data[Labels.OTHER_CONF].append(cur_id)
 
 
-def var_add_other_conf(cur_id, var_id):
-    variables[-(var_id + 1)].conf.append(cur_id)
+def var_add_conf(cur_id, var_id):
+    get_variable_from_id(var_id).conf.append(cur_id)
+
+
+def opt_add_variable(cur_id, variable):
+    if Labels.VARIABLE not in options[cur_id].data:
+        options[cur_id].data[Labels.VARIABLE] = []
+    options[cur_id].data[Labels.VARIABLE].append(variable)
 
 
 def finalize_requ():
@@ -343,16 +366,16 @@ def finalize_requ():
                 for kk, k in enumerate(j):
                     option_id = find_option_by_name(k)
                     if type(option_id) is str:
-                        option_id = add_variable(option_id)
-                        var_add_other_req(ii, option_id)
+                        option_id = find_variable_by_name(option_id)
+                        var_add_req(ii, option_id)
                     else:
                         opt_add_other_req(ii, option_id)
                     j[kk] = option_id
             else:
                 option_id = find_option_by_name(j)
                 if type(option_id) is str:
-                    option_id = add_variable(option_id)
-                    var_add_other_req(ii, option_id)
+                    option_id = find_variable_by_name(option_id)
+                    var_add_req(ii, option_id)
                 else:
                     opt_add_other_req(ii, option_id)
                 requ[jj] = option_id
@@ -367,22 +390,29 @@ def finalize_conf():
         for jj, j in enumerate(conf):
             option_id = find_option_by_name(j)
             if type(option_id) is str:
-                if option_id[0] == '\u2a52':
-                    conf_excl_all[option_id[1:].strip()].append(ii)
-                else:
-                    option_id = add_variable(option_id)
-                    var_add_other_conf(ii, option_id)
+                old_option_id = option_id
+                option_id = find_variable_by_name(option_id)
+                var_add_conf(ii, option_id)
+                if old_option_id[0] == '\u2a52':
+                    opt_add_variable(ii, get_idx_from_id(option_id))
             else:
                 opt_add_other_conf(ii, option_id)
             conf[jj] = option_id
 
 
-def finalize_conf_excl():
-    for i in conf_excl_all.values():
-        for j in range(len(i)):
-            for kk, k in enumerate(i):
-                if kk != j:
-                    opt_add_other_conf(j, k)
+def finalize_option_variables():
+    for ii, i in enumerate(options):
+        if Labels.VARIABLE not in i.data:
+            continue
+        for jj, j in enumerate(i.data[Labels.VARIABLE]):
+            if type(j) is str:
+                i.data[Labels.VARIABLE][jj] = find_var_pos_by_name(j)
+            elif type(j) is list:
+                i.data[Labels.VARIABLE][jj][0] = find_var_pos_by_name(j[0])
+            elif type(j) is int:
+                pass
+            else:
+                print(f"Type of {j} {type(j)} cannot be recognized")
 
 
 def finalize_variables():
@@ -395,6 +425,7 @@ def finalize_variables():
 def finalize_options():
     finalize_requ()
     finalize_conf()
+    finalize_option_variables()
     result = []
     for ii, i in enumerate(options):
         result.append(i.data)

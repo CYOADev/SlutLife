@@ -39,8 +39,8 @@ const OptionCheckbox: React.FunctionComponent<OptionPropType> = (props) => {
                 <OptionTitle option={option} valid={valid}/>
                 <OptionCredit option={option} valid={valid}/>
             </Container>
-            <OptionRequires option={option} state={state} valid={valid}/>
-            <OptionConflict option={option} state={state} valid={valid}/>
+            <OptionRequires option_idx={option_idx} state={state} valid={valid}/>
+            <OptionConflict option_idx={option_idx} state={state} valid={valid}/>
             <OptionDescription option={option} valid={valid}/>
         </div>
     );

@@ -9,18 +9,16 @@ import OptionFloat from 'components/combined/OptionFloat';
 import OptionNumeric from 'components/combined/OptionNumeric';
 import OptionText from 'components/combined/OptionText';
 
-import { Labels, OptionTypes, OptionInterface, RootState, RequiresType, ConflictType } from './types';
+import { Labels, OptionTypes, OptionInterface, RootState, RequiresType, ConflictType, VariableType } from './types';
 
 
 const get_requ_string = (requires: RequiresType) => {
     let requires_string: (string | string[])[] = [];
     for (let i = 0; i < requires.length; i++) {
         let require = requires[i];
-        if (typeof require === "string") {
-            requires_string.push(require);
-        } else if (typeof require === "number") {
+        if (typeof require === "number") {
             if (require < 0) {
-                // TODO: Variable stuff
+                requires_string.push(VARIABLES[-(require + 1)][0]);
             } else {
                 requires_string.push(ALL_OPTIONS[require].name);
             }
@@ -33,7 +31,7 @@ const get_requ_string = (requires: RequiresType) => {
                     requires_string_elem.push(require_elem);
                 } else if (typeof require_elem === "number") {
                     if (require_elem < 0) {
-                        // TODO: Variable stuff
+                        requires_string_elem.push(VARIABLES[-(require_elem + 1)][0]);
                     } else {
                         requires_string_elem.push(ALL_OPTIONS[require_elem].name);
                     }
@@ -52,11 +50,9 @@ const get_conf_string = (conflict: ConflictType) => {
     let conflict_string: string[] = [];
     for (let i = 0; i < conflict.length; i++) {
         let conf = conflict[i];
-        if (typeof conf === "string") {
-            conflict_string.push(conf);
-        } else if (typeof conf === "number") {
+        if (typeof conf === "number") {
             if (conf < 0) {
-                // TODO: add variable stuff
+                conflict_string.push(VARIABLES[-(conf + 1)][0]);
             } else {
                 conflict_string.push(ALL_OPTIONS[conf].name);
             }
@@ -92,13 +88,16 @@ class Option {
             this.other_requ = data[Labels.OTHER_REQU];
         if (data[Labels.OTHER_CONF])
             this.other_conf = data[Labels.OTHER_CONF];
+
+        if (data[Labels.VARIABLE])
+            this.variables = data[Labels.VARIABLE];
     }
 }
 
 const OPTION_DATA = SHEET_DATA['option_data'];
 let ALL_OPTIONS: OptionInterface[] = [];
 let LAYOUT_DATA: ((string | number)[])[] = SHEET_DATA['layout_data'];
-// const VARIABLES = SHEET_DATA['variables'];
+const VARIABLES: VariableType = SHEET_DATA['variables'] as VariableType;
 const COL_NAMES = SHEET_DATA['col_names'];
 
 function Initialize() {
@@ -115,10 +114,13 @@ function Initialize() {
             ALL_OPTIONS[i].conflict_string = get_conf_string(conflict);
         }
     }
+    console.log(ALL_OPTIONS);
+    console.log(VARIABLES);
+    console.log(COL_NAMES);
 }
 
 function constructOption(idx: number) {
-    switch (ALL_OPTIONS[idx].type[0][0]) {
+    switch (ALL_OPTIONS[idx].type[0]) {
         case OptionTypes.BO:
             return <OptionCheckbox option_idx={idx} key={idx}/>
         case OptionTypes.CO:
@@ -132,17 +134,19 @@ function constructOption(idx: number) {
     }
 }
 
-const get_requ_checked = (option: Option, state: RootState) => {
+const get_requ_checked = (option_idx: number, state: RootState) => {
+    const option = ALL_OPTIONS[option_idx];
     let requires = option.requires || [];
     let requires_checked: (boolean | boolean[])[] = [];
     for (let i = 0; i < requires.length; i++) {
         let require = requires[i];
-        if (typeof require === "string") {
-            // TODO: add string stuff
-            requires_checked.push(false);
-        } else if (typeof require === "number") {
+        if (typeof require === "number") {
             if (require < 0) {
-                // TODO: add variable stuff
+                if (state.variables[-(require + 1)].value) {
+                    requires_checked.push(true);
+                } else {
+                    requires_checked.push(false);
+                }
             } else if (state.option[require].value) {
                 requires_checked.push(true);
             } else {
@@ -153,12 +157,14 @@ const get_requ_checked = (option: Option, state: RootState) => {
             let requires_checked_elem = requires_checked[requires_checked.length - 1] as boolean[];
             for (let j = 0; j < require.length; j++) {
                 let require_elem = require[j];
-                if (typeof require_elem === "string") {
-                    // TODO: add string stuff
-                    requires_checked_elem.push(false);
-                } else if (typeof require_elem === "number") {
+                if (typeof require_elem === "number") {
                     if (require_elem < 0) {
-                        // TODO: add variable stuff
+                        if (state.variables[-(require_elem + 1)].value) {
+                            requires_checked_elem.push(true);
+                        } else {
+                            requires_checked_elem.push(false);
+                        }
+                        requires_checked_elem.push(false);
                     } else if (state.option[require_elem].value) {
                         requires_checked_elem.push(true);
                     } else {
@@ -175,17 +181,23 @@ const get_requ_checked = (option: Option, state: RootState) => {
     return requires_checked;
 }
 
-const get_conf_checked = (option: Option, state: RootState) => {
+const get_conf_checked = (option_idx: number, state: RootState) => {
+    const option = ALL_OPTIONS[option_idx];
     let conflict = option.conflict || [];
     let conflict_checked: boolean[] = [];
     for (let i = 0; i < conflict.length; i++) {
         let conf = conflict[i];
-        if (typeof conf === "string") {
-            // TODO: add string stuff
-            conflict_checked.push(false);
-        } else if (typeof conf === "number") {
+        if (typeof conf === "number") {
+            if (state.option[option_idx].valid) {
+                conflict_checked.push(false);
+                continue;
+            }
             if (conf < 0) {
-                // TODO: add variable stuff
+                if (state.variables[-(conf + 1)].value) {
+                    conflict_checked.push(true);
+                } else {
+                    conflict_checked.push(false);
+                }
             } else if (state.option[conf].value) {
                 conflict_checked.push(true);
             } else {
@@ -198,5 +210,5 @@ const get_conf_checked = (option: Option, state: RootState) => {
     return conflict_checked;
 }
 
-export { Initialize, ALL_OPTIONS, LAYOUT_DATA, COL_NAMES, Option,
+export { Initialize, ALL_OPTIONS, LAYOUT_DATA, COL_NAMES, VARIABLES, Option,
     constructOption, get_requ_checked, get_conf_checked };

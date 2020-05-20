@@ -48,8 +48,8 @@ const OptionNumeric: React.FunctionComponent<OptionPropType> = (props) => {
     const { option_idx, valid, value, UpdateOptionValue } = props;
     let option: Option = ALL_OPTIONS[option_idx];
     let max = Infinity;
-    if (option.type[0].length > 1) {
-        max = (option.type[0][1] || 0) as number;
+    if (option.type.length > 1) {
+        max = (option.type[1] || 0) as number;
         if (typeof max === "string") {
             // TODO: Handle variables
             max = Infinity;
@@ -69,8 +69,8 @@ const OptionNumeric: React.FunctionComponent<OptionPropType> = (props) => {
                      onChange={e => UpdateOptionValue(getNumber(e.target as HTMLInputElement, max))}/>
                 </NumericContainer>
             </Container>
-            <OptionRequires option={option} state={state} valid={valid}/>
-            <OptionConflict option={option} state={state} valid={valid}/>
+            <OptionRequires option_idx={option_idx} state={state} valid={valid}/>
+            <OptionConflict option_idx={option_idx} state={state} valid={valid}/>
             <OptionDescription option={option} valid={valid}/>
         </div>
     );
