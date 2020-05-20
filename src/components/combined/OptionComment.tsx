@@ -1,18 +1,18 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Box } from '@material-ui/core';
+import Box from '@material-ui/core/Box';
 
 import { connect } from 'react-redux';
 
 
-import { Option, ALL_OPTIONS } from '../../core/util';
-import { ChangeOptionState } from '../../core/actions';
-import { ValueType, RootState, DispatchType, OptionInputPropType, OptionPropType } from '../../core/types';
+import { Option, ALL_OPTIONS } from 'core/util';
+import { ChangeOptionState } from 'core/actions';
+import { ValueType, RootState, DispatchType, OptionInputPropType, OptionPropType } from 'core/types';
 
-import OptionDivider from '../parts/OptionDivider';
-import OptionTitle from '../parts/OptionTitle';
-import OptionDescription from '../parts/OptionDescription';
+import OptionDivider from 'components/parts/OptionDivider';
+import OptionTitle from 'components/parts/OptionTitle';
+import OptionDescription from 'components/parts/OptionDescription';
 
 
 const Container = styled(Box)`

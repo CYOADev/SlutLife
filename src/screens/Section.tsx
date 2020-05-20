@@ -2,10 +2,10 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 
-import { constructOption, LAYOUT_DATA } from '../core/util';
-import { RootState } from '../core/types';
+import { constructOption, LAYOUT_DATA } from 'core/util';
+import { RootState } from 'core/types';
 
-import SectionHeader from '../components/combined/SectionHeader';
+import SectionHeader from 'components/combined/SectionHeader';
 
 
 let listKey = 100000;

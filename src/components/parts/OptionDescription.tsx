@@ -2,8 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 
 
-import colors from '../../constants/Color';
-import { Option } from '../../core/util';
+import colors from 'constants/Color';
+import { Option } from 'core/util';
 
 
 const DescriptionContainer = styled.div`

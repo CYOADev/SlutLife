@@ -1,22 +1,24 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Box, Checkbox } from '@material-ui/core';
-import { Favorite, FavoriteBorder } from '@material-ui/icons';
+import Box from '@material-ui/core/Box';
+import Checkbox from '@material-ui/core/Checkbox';
+import Favorite from '@material-ui/icons/Favorite';
+import FavoriteBorder from '@material-ui/icons/FavoriteBorder';
 
 import { connect, useStore } from 'react-redux';
 
 
-import { Option, ALL_OPTIONS } from '../../core/util';
-import { ChangeOptionState } from '../../core/actions';
-import { ValueType, RootState, DispatchType, OptionInputPropType, OptionPropType } from '../../core/types';
+import { Option, ALL_OPTIONS } from 'core/util';
+import { ChangeOptionState } from 'core/actions';
+import { ValueType, RootState, DispatchType, OptionInputPropType, OptionPropType } from 'core/types';
 
-import OptionDivider from '../parts/OptionDivider';
-import OptionTitle from '../parts/OptionTitle';
-import OptionCredit from '../parts/OptionCredit';
-import OptionDescription from '../parts/OptionDescription';
-import OptionRequires from '../parts/OptionRequires';
-import OptionConflict from '../parts/OptionConflict';
+import OptionDivider from 'components/parts/OptionDivider';
+import OptionTitle from 'components/parts/OptionTitle';
+import OptionCredit from 'components/parts/OptionCredit';
+import OptionDescription from 'components/parts/OptionDescription';
+import OptionRequires from 'components/parts/OptionRequires';
+import OptionConflict from 'components/parts/OptionConflict';
 
 
 const Container = styled(Box)`

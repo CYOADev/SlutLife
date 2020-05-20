@@ -2,9 +2,9 @@ import React from 'react';
 import styled from 'styled-components';
 
 
-import colors from '../../constants/Color';
-import { Option, get_conf_checked } from '../../core/util';
-import { RootState } from '../../core/types';
+import colors from 'constants/Color';
+import { Option, get_conf_checked } from 'core/util';
+import { RootState } from 'core/types';
 
 
 const ConflictContainer = styled.div`

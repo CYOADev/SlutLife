@@ -1,9 +1,9 @@
 import produce from 'immer';
 
 
-import { ALL_OPTIONS } from './util';
-import { Actions } from './actions';
-import { ValueType, OptionStateInterface, ActionInterface, RootState } from './types';
+import { ALL_OPTIONS } from 'core/util';
+import { Actions } from 'core/actions';
+import { ValueType, OptionStateInterface, ActionInterface, RootState } from 'core/types';
 
 
 const get_num_requ = (idx: number) => {

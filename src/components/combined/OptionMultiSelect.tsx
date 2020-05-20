@@ -4,7 +4,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import {TextField} from '@material-ui/core';
+import TextField from '@material-ui/core/TextField';
 
 const Container = styled.div`
 display: flex;

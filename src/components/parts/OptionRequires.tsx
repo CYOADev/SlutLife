@@ -2,9 +2,9 @@ import React from 'react';
 import styled from 'styled-components';
 
 
-import colors from '../../constants/Color';
-import { Option, get_requ_checked } from '../../core/util';
-import { RootState } from '../../core/types';
+import colors from 'constants/Color';
+import { Option, get_requ_checked } from 'core/util';
+import { RootState } from 'core/types';
 
 
 const RequiresContainer = styled.div`

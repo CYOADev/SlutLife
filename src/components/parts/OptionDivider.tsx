@@ -1,10 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Divider } from '@material-ui/core';
+import Divider from '@material-ui/core/Divider';
 
 
-import { Option } from '../../core/util';
+import { Option } from 'core/util';
 
 
 const DividerContainer = styled.div`

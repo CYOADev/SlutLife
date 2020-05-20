@@ -1,13 +1,13 @@
 import React from 'react';
 
 
-import SHEET_DATA from '../assets/sheet_data.json';
+import SHEET_DATA from 'assets/sheet_data.json';
 
-import OptionCheckbox from '../components/combined/OptionCheckbox';
-import OptionComment from '../components/combined/OptionComment';
-import OptionFloat from '../components/combined/OptionFloat';
-import OptionNumeric from '../components/combined/OptionNumeric';
-import OptionText from '../components/combined/OptionText';
+import OptionCheckbox from 'components/combined/OptionCheckbox';
+import OptionComment from 'components/combined/OptionComment';
+import OptionFloat from 'components/combined/OptionFloat';
+import OptionNumeric from 'components/combined/OptionNumeric';
+import OptionText from 'components/combined/OptionText';
 
 import { Labels, OptionTypes, OptionInterface, RootState, RequiresType, ConflictType } from './types';
 

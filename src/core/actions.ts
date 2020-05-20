@@ -1,4 +1,4 @@
-import { ValueType } from './types';
+import { ValueType } from 'core/types';
 
 
 enum Actions {

@@ -6,9 +6,9 @@ import Tab from '@material-ui/core/Tab';
 import { connect } from 'react-redux';
 
 
-import { RootState, DispatchType } from '../../core/types';
+import { RootState, DispatchType } from 'core/types';
 
-import { ChangeTab } from '../../core/actions';
+import { ChangeTab } from 'core/actions';
 
 
 const CreditText = styled.span`

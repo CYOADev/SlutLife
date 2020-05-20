@@ -2,16 +2,16 @@ import React from 'react';
 import styled from 'styled-components';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
-import { createMuiTheme } from '@material-ui/core/styles';
-import { ThemeProvider } from '@material-ui/styles';
+import createMuiTheme from '@material-ui/core/styles/createMuiTheme';
+import ThemeProvider from '@material-ui/styles/ThemeProvider';
 
 
-import { Initialize, COL_NAMES } from '../core/util';
-import { Reducer, GetInitialState } from '../core/reducers'
-import colors from '../constants/Color';
+import { Initialize, COL_NAMES } from 'core/util';
+import { Reducer, GetInitialState } from 'core/reducers'
+import colors from 'constants/Color';
 
-import TopBar from '../components/combined/TopBar';
-import Section from './Section';
+import TopBar from 'components/combined/TopBar';
+import Section from 'screens/Section';
 
 
 const MainContainer = styled.div`
