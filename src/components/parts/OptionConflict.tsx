@@ -7,7 +7,7 @@ import { Option, get_conf_checked } from 'core/util';
 import { RootState } from 'core/types';
 
 
-const ConflictContainer = styled.div`
+const ConflictContainer = styled.div<{valid: number}>`
 display: flex;
 flex-direction: row;
 flex-wrap: wrap;
@@ -15,14 +15,16 @@ position: relative;
 top: -10px;
 margin-left: 10px;
 font-size: 13px;
+color: ${props => props.valid ? colors.ValidText : colors.InvalidText};
 `
 
-const ConflictText = styled.span`
+const ConflictText = styled.span<{value: number}>`
+color: ${props => props.value ? colors.UncheckedColor : colors.CheckedColor};
 `;
 
 const ConflictElement: React.FunctionComponent<{name: string, value: boolean}> = (props) => {
     return (
-        <ConflictText style={{color: props.value ? colors.UncheckedColor : colors.CheckedColor }}>{props.name}</ConflictText>
+        <ConflictText value={+props.value}>{props.name}</ConflictText>
     );
 };
 
@@ -47,7 +49,7 @@ const OptionConflict: React.FunctionComponent<{
         }
     }
     return (
-        <ConflictContainer style={{color: valid ? colors.ValidText : colors.InvalidText}}>
+        <ConflictContainer valid={+valid}>
             {result}
         </ConflictContainer>
     );

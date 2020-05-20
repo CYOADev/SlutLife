@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import Box from '@material-ui/core/Box';
 import TextField from '@material-ui/core/TextField';
 
 import { connect, useStore } from 'react-redux';
@@ -19,7 +18,7 @@ import OptionRequires from 'components/parts/OptionRequires';
 import OptionConflict from 'components/parts/OptionConflict';
 
 
-const Container = styled(Box)`
+const Container = styled.div`
 display: flex;
 flex-direction: row;
 margin-left: 10px;

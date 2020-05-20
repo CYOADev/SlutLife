@@ -12,11 +12,10 @@ margin-top: 10px;
 `
 
 const OptionDivider: React.FunctionComponent<{option: Option}> = (props) => {
-    const {option} = props;
     return (
-        <div>
-            {option.is_parent && <DividerContainer><Divider/></DividerContainer>}
-        </div>
+        <>
+            {props.option.is_parent && <DividerContainer><Divider/></DividerContainer>}
+        </>
     );
 };
 

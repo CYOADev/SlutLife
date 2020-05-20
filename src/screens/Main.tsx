@@ -2,7 +2,9 @@ import React from 'react';
 import styled from 'styled-components';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
+
 import createMuiTheme from '@material-ui/core/styles/createMuiTheme';
+import CssBaseline from '@material-ui/core/CssBaseline';
 import ThemeProvider from '@material-ui/styles/ThemeProvider';
 
 
@@ -23,13 +25,13 @@ padding: 20px;
 const theme = createMuiTheme({
     palette: {
         primary: {
-            main: "#A1C3D1",
+            main: colors.PrimaryColor,
         },
         secondary: {
-            main: "#E64398",
+            main: colors.SecondaryColor,
         },
     }
-})
+});
 
 const Main: React.FunctionComponent = () => {
     Initialize();
@@ -39,14 +41,17 @@ const Main: React.FunctionComponent = () => {
         sections.push(<Section section_idx={i} key={i}/>);
     }
     return (
-        <Provider store={store}>
-            <ThemeProvider theme={theme}>
-                <TopBar names={COL_NAMES}/>
-                <MainContainer>
-                    {sections}
-                </MainContainer>
-            </ThemeProvider>
-        </Provider>
+        <>
+            <CssBaseline/>
+            <Provider store={store}>
+                <ThemeProvider theme={theme}>
+                    <TopBar names={COL_NAMES}/>
+                    <MainContainer>
+                        {sections}
+                    </MainContainer>
+                </ThemeProvider>
+            </Provider>
+        </>
     )
 }
 

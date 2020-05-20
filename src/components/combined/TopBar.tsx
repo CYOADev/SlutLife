@@ -17,6 +17,11 @@ font-size: 24px;
 margin-left: 10px;
 `
 
+const TopAppBar = styled(AppBar)`
+display: flex;
+flex-direction: row;
+align-items: center;
+`
 
 const TopBar: React.FunctionComponent<{
     names: string[],
@@ -26,16 +31,14 @@ const TopBar: React.FunctionComponent<{
 }> = (props) => {
     let tab_idx = 0;
     return (
-        <div>
-            <AppBar position="fixed" style={{display: "flex", flexDirection: "row", alignItems: "center"}}>
-                <Tabs value={props.page_id} variant="scrollable" onChange={(e, val) => props.UpdateTab(val)}>
-                    {props.names.map(name => (
-                        <Tab label={name} key={tab_idx++}></Tab>
-                    ))}
-                </Tabs>
-                <CreditText>{ props.credits }</CreditText>
-            </AppBar>
-        </div>
+        <TopAppBar position="fixed">
+            <Tabs value={props.page_id} variant="scrollable" onChange={(e, val) => props.UpdateTab(val)}>
+                {props.names.map(name => (
+                    <Tab label={name} key={tab_idx++}></Tab>
+                ))}
+            </Tabs>
+            <CreditText>{ props.credits }</CreditText>
+        </TopAppBar>
     );
 };
 

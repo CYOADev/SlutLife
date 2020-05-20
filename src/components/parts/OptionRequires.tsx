@@ -7,7 +7,7 @@ import { Option, get_requ_checked } from 'core/util';
 import { RootState } from 'core/types';
 
 
-const RequiresContainer = styled.div`
+const RequiresContainer = styled.div<{valid: number}>`
 display: flex;
 flex-direction: row;
 flex-wrap: wrap;
@@ -15,14 +15,16 @@ position: relative;
 top: -10px;
 margin-left: 10px;
 font-size: 13px;
-`
+color: ${props => props.valid ? colors.InvalidText : colors.ValidText};
+`;
 
-const RequiresText = styled.span`
+const RequiresText = styled.span<{value: number}>`
+color: ${props => props.value ? colors.UncheckedColor : colors.CheckedColor};
 `;
 
 const RequiresElement: React.FunctionComponent<{name: string, value: boolean}> = (props) => {
     return (
-        <RequiresText style={{color: props.value ? colors.CheckedColor : colors.UncheckedColor}}>{props.name}</RequiresText>
+        <RequiresText value={+props.value}>{props.name}</RequiresText>
     );
 };
 
@@ -70,7 +72,7 @@ const OptionRequires: React.FunctionComponent<{
         }
     }
     return (
-        <RequiresContainer style={{color: valid ? colors.ValidText : colors.InvalidText}}>
+        <RequiresContainer valid={+valid}>
             {result}
         </RequiresContainer>
     );

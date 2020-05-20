@@ -6,16 +6,16 @@ import colors from 'constants/Color';
 import { Option } from 'core/util';
 
 
-const Credit = styled.span`
+const Credit = styled.span<{valid: number}>`
 font-size: 20px;
 margin-top: 13px;
 margin-left: 10px;
+color: ${props => props.valid ? colors.ValidText : colors.InvalidText};
 `;
 
 const OptionCredit: React.FunctionComponent<{option: Option, valid: boolean}> = (props) => {
-    const {option, valid} = props;
     return (
-        <Credit style={{color: valid ? colors.ValidText : colors.InvalidText}}>{ option.credits }</Credit>
+        <Credit valid={+props.valid}>{ props.option.credits }</Credit>
     );
 };
 

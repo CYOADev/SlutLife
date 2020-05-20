@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import Box from '@material-ui/core/Box';
 import Checkbox from '@material-ui/core/Checkbox';
 import Favorite from '@material-ui/icons/Favorite';
 import FavoriteBorder from '@material-ui/icons/FavoriteBorder';
@@ -21,7 +20,7 @@ import OptionRequires from 'components/parts/OptionRequires';
 import OptionConflict from 'components/parts/OptionConflict';
 
 
-const Container = styled(Box)`
+const Container = styled.div`
 display: flex;
 flex-direction: row;
 `;

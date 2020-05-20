@@ -10,14 +10,14 @@ const DescriptionContainer = styled.div`
 margin-left: 10px;
 `
 
-const Description = styled.span`
+const Description = styled.span<{valid: number}>`
+color: ${props => props.valid ? colors.ValidText : colors.InvalidText};
 `;
 
 const OptionDescription: React.FunctionComponent<{option: Option, valid: boolean}> = (props) => {
-    const {option, valid} = props;
     return (
         <DescriptionContainer>
-            <Description style={{color: valid ? colors.ValidText : colors.InvalidText}}>{ option.details }</Description>
+            <Description valid={+props.valid}>{ props.option.details }</Description>
         </DescriptionContainer>
     );
 };

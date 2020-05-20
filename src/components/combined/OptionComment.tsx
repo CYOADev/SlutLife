@@ -1,8 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import Box from '@material-ui/core/Box';
-
 import { connect } from 'react-redux';
 
 
@@ -15,7 +13,7 @@ import OptionTitle from 'components/parts/OptionTitle';
 import OptionDescription from 'components/parts/OptionDescription';
 
 
-const Container = styled(Box)`
+const Container = styled.div`
 display: flex;
 flex-direction: row;
 `;

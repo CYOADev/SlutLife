@@ -6,16 +6,16 @@ import colors from 'constants/Color';
 import { Option } from 'core/util';
 
 
-const Title = styled.h3`
+const Title = styled.span<{valid: number}>`
 margin-bottom: 10px;
 margin-top: 10px;
 font-size: 24px;
+color: ${props => props.valid ? colors.ValidText : colors.InvalidText};
 `;
 
 const OptionTitle: React.FunctionComponent<{option: Option, valid: boolean}> = (props) => {
-    const {option, valid} = props;
     return (
-        <Title style={{color: valid ? colors.ValidText : colors.InvalidText}}>{ option.name }</Title>
+        <Title valid={+props.valid}>{ props.option.name }</Title>
     );
 };
 
