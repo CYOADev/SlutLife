@@ -24,7 +24,7 @@ margin-bottom: 4px;
 `;
 
 const TextContainer = styled.div`
-margin-top: 8px;
+margin-top: 12px;
 margin-left: 8px;
 width: 144px;
 `;
@@ -44,7 +44,7 @@ const OptionText: React.FunctionComponent<OptionPropType> = (props) => {
                 <OptionTitle option={option} valid={valid}/>
                 <TextContainer>
                     <TextField variant="outlined" disabled={!valid}
-                     inputProps={{style: {padding: 6, fontSize: 18}}} value={string_value}
+                     inputProps={{style: {padding: 6}}} value={string_value}
                      onChange={e => UpdateOptionValue((e.target as HTMLInputElement).value)}/>
                 </TextContainer>
             </Container>

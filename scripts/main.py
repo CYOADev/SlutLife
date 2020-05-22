@@ -87,6 +87,7 @@ class Variable():
         self.variable_id = -(len(variables) + 1)
         self.requ = []
         self.conf = []
+        self.affe = []
 
 
 class Option():
@@ -172,9 +173,9 @@ class Option():
         if len(data) > 2:
             nums = data.split()[1:]
             if len(nums) == 1:
-                top = int(nums[0]) if is_int(nums[0]) else nums[0]
+                top = int(nums[0]) if is_int(nums[0]) else nums[0].strip()
             return (OptionTypes.NU, top)
-        return (OptionTypes.NU)
+        return (OptionTypes.NU,)
 
     def handle_fl(self, data):
         return (OptionTypes.FL,
@@ -415,10 +416,20 @@ def finalize_option_variables():
                 print(f"Type of {j} {type(j)} cannot be recognized")
 
 
+def finalize_type():
+    for ii, i in enumerate(options):
+        _type = i.data[Labels.TYPE]
+        if len(_type) > 1 and _type[0] == OptionTypes.NU:
+            if type(_type[1]) is str:
+                var_id = get_idx_from_id(find_var_pos_by_name(_type[1]))
+                i.data[Labels.TYPE] = (OptionTypes.NU, var_id)
+                get_variable_from_id(var_id).affe.append(ii)
+
+
 def finalize_variables():
     result = []
     for ii, i in enumerate(variables):
-        result.append([i.name, i.requ, i.conf])
+        result.append([i.name, i.requ, i.conf, i.affe])
     return result
 
 
@@ -426,6 +437,7 @@ def finalize_options():
     finalize_requ()
     finalize_conf()
     finalize_option_variables()
+    finalize_type()
     result = []
     for ii, i in enumerate(options):
         result.append(i.data)
@@ -433,8 +445,6 @@ def finalize_options():
 
 
 # Function for different sheets
-# Result: [[type, {name: str, cred: int, desc: str, requ: [str, str...],
-#                  conf: [str, str...], parent: bool}]]
 # Type: 0 - option, 1 - section header
 
 def process_column(data, col_name):

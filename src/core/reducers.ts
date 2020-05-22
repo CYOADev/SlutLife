@@ -143,6 +143,9 @@ const propogateFalsy = (idx: number, new_state: RootState, filter=-1) => {
 const propogateVariables = (
     id: number, op_id: number, old_val: number, new_val: number, new_state: RootState
 ) => {
+    for (let i = 0; i < VARIABLES[id][3].length; i++) {
+        new_state.option[VARIABLES[id][3][i]].update_val++;
+    }
     new_state.variables[id].value = new_val;
     if (old_val === 0 && new_val !== 0) {
         propogateTruthy(-(id + 1), new_state, op_id);
@@ -160,12 +163,12 @@ const changeVariables = (id: number, old_val: number, new_val: number, new_state
             let new_var_val: number;
             if (typeof variable_op === "number") {
                 old_var_val = new_state.variables[variable_op].value;
-                new_var_val = old_var_val - old_val + new_val;
+                new_var_val = old_var_val + new_val - old_val;
                 propogateVariables(variable_op, id, old_var_val, new_var_val, new_state);
             } else if (typeof option.variables[i] === "object") {
                 let var_idx = variable_op[0];
                 old_var_val = new_state.variables[var_idx].value;
-                new_var_val = variable_op[1];
+                new_var_val = old_var_val + variable_op[1] * (new_val - old_val);
                 propogateVariables(var_idx, id, old_var_val, new_var_val, new_state);
             } else {
                 console.error("variable op is not of type number or object");

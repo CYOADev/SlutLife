@@ -49,7 +49,7 @@ export type RequiresType = (number | number[])[];
 
 export type ConflictType = number[];
 
-export type VariableType = [string, number[], number[]][];
+export type VariableType = [string, number[], number[], number[]][];
 
 export interface OptionInterface {
     name: string;

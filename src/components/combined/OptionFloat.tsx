@@ -25,7 +25,7 @@ margin-bottom: 4px;
 `;
 
 const NumericContainer = styled.div`
-margin-top: 8px;
+margin-top: 12px;
 margin-left: 8px;
 width: 72px;
 `;
@@ -61,7 +61,7 @@ const OptionFloat: React.FunctionComponent<OptionPropType> = (props) => {
                 <OptionTitle option={option} valid={valid}/>
                 <NumericContainer>
                     <TextField type="number" variant="outlined" disabled={!valid}
-                     inputProps={{style: {padding: 6, fontSize: 18}}} value={float_value}
+                     inputProps={{style: {padding: 6}}} value={float_value}
                      onChange={e => UpdateOptionValue(getNumber(e.target as HTMLInputElement, min, max))}/>
                 </NumericContainer>
             </Container>

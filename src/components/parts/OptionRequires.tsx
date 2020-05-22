@@ -16,7 +16,7 @@ flex-wrap: wrap;
 position: relative;
 top: -10px;
 margin-left: 10px;
-color: ${props => props.valid ? colors.InvalidText : colors.ValidText};
+color: ${props => props.valid ? colors.ValidText : colors.InvalidText};
 `;
 
 const RequiresGroupContainer = styled.div`

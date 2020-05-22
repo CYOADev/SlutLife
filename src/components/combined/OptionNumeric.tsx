@@ -25,8 +25,8 @@ margin-bottom: 4px;
 `;
 
 const NumericContainer = styled.div`
-margin-top: 8px;
-margin-left: 8px;
+margin-top: 12px;
+margin-right: 8px;
 width: 72px;
 `;
 
@@ -48,26 +48,33 @@ const OptionNumeric: React.FunctionComponent<OptionPropType> = (props) => {
     const { option_idx, valid, value, UpdateOptionValue } = props;
     let option: Option = ALL_OPTIONS[option_idx];
     let max = Infinity;
-    if (option.type.length > 1) {
-        max = (option.type[1] || 0) as number;
-        if (typeof max === "string") {
-            // TODO: Handle variables
-            max = Infinity;
-        }
-    }
     let int_value = (typeof value === "number") ? round(value as number) : "";
     let state: RootState = useStore().getState();
+    if (option.type.length > 1) {
+        max = (option.type[1] || 0) as number;
+        if (max < 0) {
+            max = state.variables[-(max + 1)].value;
+        }
+    }
+    if (int_value !== "" && (int_value < 0 || int_value > max)) {
+        if (int_value < 0) {
+            int_value = 0;
+        } else {
+            int_value = max;
+        }
+        UpdateOptionValue(int_value);
+    }
     return (
         <div>
             <OptionDivider option={option}/>
             <Container>
-                <OptionTitle option={option} valid={valid}/>
-                <OptionCredit option={option} valid={valid}/>
                 <NumericContainer>
                     <TextField type="number" variant="outlined" disabled={!valid}
-                     inputProps={{style: {padding: 6, fontSize: 18}}} value={int_value}
+                     inputProps={{style: {padding: 6}}} value={int_value}
                      onChange={e => UpdateOptionValue(getNumber(e.target as HTMLInputElement, max))}/>
                 </NumericContainer>
+                <OptionTitle option={option} valid={valid}/>
+                <OptionCredit option={option} valid={valid}/>
             </Container>
             <OptionRequires option_idx={option_idx} state={state} valid={valid}/>
             <OptionConflict option_idx={option_idx} state={state} valid={valid}/>
