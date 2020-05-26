@@ -1,7 +1,7 @@
 import produce from 'immer';
 
 
-import { ALL_OPTIONS, VARIABLES } from 'core/util';
+import { ALL_OPTIONS, ALL_VARIABLES } from 'core/util';
 import { Actions } from 'core/actions';
 import { ValueType, OptionStateInterface, ActionInterface, RootState, VariableStateInterface } from 'core/types';
 
@@ -64,7 +64,7 @@ const propogateTruthy = (idx: number, new_state: RootState, filter=-1) => {
     if (idx >= 0) {
         other_requ = ALL_OPTIONS[idx].other_requ || [];
     } else {
-        other_requ = VARIABLES[-(idx + 1)][1];
+        other_requ = ALL_VARIABLES[-(idx + 1)].requ;
     }
     for (let i = 0; i < other_requ.length; i++) {
         if (does_change(other_requ[i], idx, new_state)) {
@@ -81,7 +81,7 @@ const propogateTruthy = (idx: number, new_state: RootState, filter=-1) => {
     if (idx >= 0) {
         other_conf = ALL_OPTIONS[idx].other_conf || [];
     } else {
-        other_conf = VARIABLES[-(idx + 1)][2];
+        other_conf = ALL_VARIABLES[-(idx + 1)].conf;
     }
     for (let i = 0; i < other_conf.length; i++) {
         if (other_conf[i] === filter) {
@@ -105,7 +105,7 @@ const propogateFalsy = (idx: number, new_state: RootState, filter=-1) => {
     if (idx >= 0) {
         other_requ = ALL_OPTIONS[idx].other_requ || [];
     } else {
-        other_requ = VARIABLES[-(idx + 1)][1];
+        other_requ = ALL_VARIABLES[-(idx + 1)].requ;
     }
     for (let i = 0; i < other_requ.length; i++) {
         if (does_change(other_requ[i], idx, new_state)) {
@@ -127,7 +127,7 @@ const propogateFalsy = (idx: number, new_state: RootState, filter=-1) => {
     if (idx >= 0) {
         other_conf = ALL_OPTIONS[idx].other_conf || [];
     } else {
-        other_conf = VARIABLES[-(idx + 1)][2];
+        other_conf = ALL_VARIABLES[-(idx + 1)].conf;
     }
     for (let i = 0; i < other_conf.length; i++) {
         if (other_conf[i] === filter) {
@@ -143,8 +143,8 @@ const propogateFalsy = (idx: number, new_state: RootState, filter=-1) => {
 const propogateVariables = (
     id: number, op_id: number, old_val: number, new_val: number, new_state: RootState
 ) => {
-    for (let i = 0; i < VARIABLES[id][3].length; i++) {
-        new_state.option[VARIABLES[id][3][i]].update_val++;
+    for (let i = 0; i < ALL_VARIABLES[id].affe.length; i++) {
+        new_state.option[ALL_VARIABLES[id].affe[i]].update_val++;
     }
     new_state.variables[id].value = new_val;
     if (old_val === 0 && new_val !== 0) {
@@ -223,8 +223,8 @@ const GetInitialState = () => {
             update_val: 0,
         }
     }
-    let VariableInitialState: VariableStateInterface[] = Array(VARIABLES.length);
-    for (let i = 0; i < VARIABLES.length; i++) {
+    let VariableInitialState: VariableStateInterface[] = Array(ALL_VARIABLES.length);
+    for (let i = 0; i < ALL_VARIABLES.length; i++) {
         VariableInitialState[i] = {
             value: 0,
         }

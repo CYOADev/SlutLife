@@ -16,7 +16,7 @@ margin-top: 10px;
 
 let listKey = 100000;
 
-function constructElem(elem: string | number) {
+const constructElem = (elem: string | number) => {
     if (typeof elem === 'string') {
         return (<SectionHeader title={elem} key={listKey++}/>);
     } else {
@@ -28,18 +28,17 @@ const Section: React.FunctionComponent<{
     section_idx: number,
     is_current_page: boolean,
 }> = (props) => {
-    let layout = LAYOUT_DATA[props.section_idx];
     return (
         <>
             {props.is_current_page && (<Container>
-                {layout.map(constructElem)}
+                {LAYOUT_DATA[props.section_idx].map(constructElem)}
             </Container>)}
         </>
-    )
-}
+    );
+};
 
 const mapStateToProps = (state: RootState, ownProps: {section_idx: number}) => ({
     is_current_page: state.page_id === ownProps.section_idx,
-})
+});
 
 export default connect(mapStateToProps)(Section);

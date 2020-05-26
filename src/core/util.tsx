@@ -9,7 +9,16 @@ import OptionFloat from 'components/combined/OptionFloat';
 import OptionNumeric from 'components/combined/OptionNumeric';
 import OptionText from 'components/combined/OptionText';
 
-import { Labels, OptionTypes, OptionInterface, RootState, RequiresType, ConflictType, VariableType } from './types';
+import {
+    Labels,
+    OptionTypes,
+    OptionInterface,
+    RootState,
+    RequiresType,
+    ConflictType,
+    VariableType,
+    VariableInterface,
+} from './types';
 
 
 const get_requ_string = (requires: RequiresType) => {
@@ -18,7 +27,7 @@ const get_requ_string = (requires: RequiresType) => {
         let require = requires[i];
         if (typeof require === "number") {
             if (require < 0) {
-                requires_string.push(VARIABLES[-(require + 1)][0]);
+                requires_string.push(ALL_VARIABLES[-(require + 1)].name);
             } else {
                 requires_string.push(ALL_OPTIONS[require].name);
             }
@@ -31,7 +40,7 @@ const get_requ_string = (requires: RequiresType) => {
                     requires_string_elem.push(require_elem);
                 } else if (typeof require_elem === "number") {
                     if (require_elem < 0) {
-                        requires_string_elem.push(VARIABLES[-(require_elem + 1)][0]);
+                        requires_string_elem.push(ALL_VARIABLES[-(require_elem + 1)].name);
                     } else {
                         requires_string_elem.push(ALL_OPTIONS[require_elem].name);
                     }
@@ -52,7 +61,7 @@ const get_conf_string = (conflict: ConflictType) => {
         let conf = conflict[i];
         if (typeof conf === "number") {
             if (conf < 0) {
-                conflict_string.push(VARIABLES[-(conf + 1)][0]);
+                conflict_string.push(ALL_VARIABLES[-(conf + 1)].name);
             } else {
                 conflict_string.push(ALL_OPTIONS[conf].name);
             }
@@ -88,6 +97,8 @@ class Option {
             this.other_requ = data[Labels.OTHER_REQU];
         if (data[Labels.OTHER_CONF])
             this.other_conf = data[Labels.OTHER_CONF];
+        if (data[Labels.OTHER_EV])
+            this.other_ev = data[Labels.OTHER_EV];
 
         if (data[Labels.VARIABLE])
             this.variables = data[Labels.VARIABLE];
@@ -97,12 +108,22 @@ class Option {
 const OPTION_DATA = SHEET_DATA['option_data'];
 let ALL_OPTIONS: OptionInterface[] = [];
 let LAYOUT_DATA: ((string | number)[])[] = SHEET_DATA['layout_data'];
-const VARIABLES: VariableType = SHEET_DATA['variables'] as VariableType;
+const VARIABLE_DATA: VariableType = SHEET_DATA['variables'] as VariableType;
 const COL_NAMES = SHEET_DATA['col_names'];
+let ALL_VARIABLES: VariableInterface[] = [];
 
 function Initialize() {
     for (let i = 0; i < OPTION_DATA.length; i++) {
         ALL_OPTIONS.push(new Option(OPTION_DATA[i]));
+    }
+    for (let i = 0; i < VARIABLE_DATA.length; i++) {
+        ALL_VARIABLES.push({
+            name: VARIABLE_DATA[i][0],
+            requ: VARIABLE_DATA[i][1],
+            conf: VARIABLE_DATA[i][2],
+            affe: VARIABLE_DATA[i][3],
+            ev: VARIABLE_DATA[i][4],
+        });
     }
     for (let i = 0; i < ALL_OPTIONS.length; i++) {
         let requires = ALL_OPTIONS[i].requires;
@@ -115,7 +136,7 @@ function Initialize() {
         }
     }
     console.log(ALL_OPTIONS);
-    console.log(VARIABLES);
+    console.log(ALL_VARIABLES);
     console.log(COL_NAMES);
 }
 
@@ -131,6 +152,8 @@ function constructOption(idx: number) {
             return <OptionNumeric option_idx={idx} key={idx}/>
         case OptionTypes.TE:
             return <OptionText option_idx={idx} key={idx}/>
+        case OptionTypes.OW:  // TODO: have actual custom option
+            return <OptionCheckbox option_idx={idx} key={idx}/>
     }
 }
 
@@ -210,5 +233,5 @@ const get_conf_checked = (option_idx: number, state: RootState) => {
     return conflict_checked;
 }
 
-export { Initialize, ALL_OPTIONS, LAYOUT_DATA, COL_NAMES, VARIABLES, Option,
+export { Initialize, ALL_OPTIONS, LAYOUT_DATA, COL_NAMES, ALL_VARIABLES, Option,
     constructOption, get_requ_checked, get_conf_checked };

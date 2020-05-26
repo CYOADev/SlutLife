@@ -17,8 +17,9 @@ export enum Labels {
 
     OTHER_REQU = '11',
     OTHER_CONF = '12',
+    OTHER_EV = '13',
 
-    VARIABLE = '13',
+    VARIABLE = '14',
 }
 
 export enum OptionTypes {
@@ -28,11 +29,11 @@ export enum OptionTypes {
     EV = 3,
     EV_EX = 4,
     CON = 5,
-    CON_EX = 6,
+    CON_EX = 6,  // Does not exist yet
     TE = 7,  // Implemented
     OW = 8,
     PU = 9,
-    CO = 10,
+    CO = 10,  // Implemented
 }
 
 export type ValueType = number | number[] | boolean | string;
@@ -49,7 +50,15 @@ export type RequiresType = (number | number[])[];
 
 export type ConflictType = number[];
 
-export type VariableType = [string, number[], number[], number[]][];
+export type VariableType = [string, number[], number[], number[], number[]][];
+
+export interface VariableInterface {
+    name: string;
+    requ: number[];
+    conf: number[];
+    affe: number[];
+    ev: number[];
+}
 
 export interface OptionInterface {
     name: string;
@@ -66,6 +75,7 @@ export interface OptionInterface {
 
     other_requ: number[];
     other_conf: number[];
+    other_ev: number[];
 
     variables?: (number | [number, number])[];
 

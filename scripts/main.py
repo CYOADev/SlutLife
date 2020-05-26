@@ -48,8 +48,9 @@ class Labels(IntEnum):
 
     OTHER_REQU = 11
     OTHER_CONF = 12
+    OTHER_EV = 13
 
-    VARIABLE = 13
+    VARIABLE = 14
 
     EFFECT = 100  # not used
 
@@ -88,6 +89,7 @@ class Variable():
         self.requ = []
         self.conf = []
         self.affe = []
+        self.ev = []
 
 
 class Option():
@@ -350,6 +352,12 @@ def var_add_conf(cur_id, var_id):
     get_variable_from_id(var_id).conf.append(cur_id)
 
 
+def opt_add_other_ev(cur_id, other_id):
+    if Labels.OTHER_EV not in options[other_id].data:
+        options[other_id].data[Labels.OTHER_EV] = []
+    options[other_id].data[Labels.OTHER_EV].append(cur_id)
+
+
 def opt_add_variable(cur_id, variable):
     if Labels.VARIABLE not in options[cur_id].data:
         options[cur_id].data[Labels.VARIABLE] = []
@@ -419,17 +427,25 @@ def finalize_option_variables():
 def finalize_type():
     for ii, i in enumerate(options):
         _type = i.data[Labels.TYPE]
-        if len(_type) > 1 and _type[0] == OptionTypes.NU:
-            if type(_type[1]) is str:
+        if len(_type) > 1:
+            if _type[0] == OptionTypes.NU and type(_type[1]) is str:
                 var_id = get_idx_from_id(find_var_pos_by_name(_type[1]))
                 i.data[Labels.TYPE] = (OptionTypes.NU, var_id)
                 get_variable_from_id(var_id).affe.append(ii)
+            if _type[0] == OptionTypes.EV:
+                option_id = find_option_by_name(_type[1])
+                if type(option_id) is str:
+                    option_id = get_idx_from_id(find_var_pos_by_name(_type[1]))
+                    get_variable_from_id(option_id).ev.append(ii)
+                else:
+                    opt_add_other_ev(ii, option_id)
+                i.data[Labels.TYPE] = (OptionTypes.EV, option_id)
 
 
 def finalize_variables():
     result = []
     for ii, i in enumerate(variables):
-        result.append([i.name, i.requ, i.conf, i.affe])
+        result.append([i.name, i.requ, i.conf, i.affe, i.ev])
     return result
 
 
