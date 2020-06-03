@@ -432,14 +432,32 @@ def finalize_type():
                 var_id = get_idx_from_id(find_var_pos_by_name(_type[1]))
                 i.data[Labels.TYPE] = (OptionTypes.NU, var_id)
                 get_variable_from_id(var_id).affe.append(ii)
-            if _type[0] == OptionTypes.EV:
+            elif _type[0] == OptionTypes.EV:
                 option_id = find_option_by_name(_type[1])
                 if type(option_id) is str:
                     option_id = get_idx_from_id(find_var_pos_by_name(_type[1]))
                     get_variable_from_id(option_id).ev.append(ii)
                 else:
                     opt_add_other_ev(ii, option_id)
+                    if option_id not in (i.data.get(Labels.REQUIRES) or []):
+                        if Labels.REQUIRES not in i.data:
+                            i.data[Labels.REQUIRES] = []
+                        i.data[Labels.REQUIRES].append(option_id)
+                        opt_add_other_req(ii, option_id)
                 i.data[Labels.TYPE] = (OptionTypes.EV, option_id)
+            elif _type[0] == OptionTypes.EV_EX:
+                option_id = find_option_by_name(_type[1])
+                if type(option_id) is str:
+                    option_id = get_idx_from_id(find_var_pos_by_name(_type[1]))
+                    get_variable_from_id(option_id).ev.append(ii)
+                else:
+                    opt_add_other_ev(ii, option_id)
+                    if option_id not in (i.data.get(Labels.REQUIRES) or []):
+                        if Labels.REQUIRES not in i.data:
+                            i.data[Labels.REQUIRES] = []
+                        i.data[Labels.REQUIRES].append(option_id)
+                        opt_add_other_req(ii, option_id)
+                i.data[Labels.TYPE] = (OptionTypes.EV_EX, option_id)
 
 
 def finalize_variables():

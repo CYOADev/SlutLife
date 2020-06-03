@@ -30,6 +30,13 @@ const theme = createMuiTheme({
         secondary: {
             main: colors.SecondaryColor,
         },
+    },
+    overrides: {
+        MuiOutlinedInput: {
+            input: {
+                padding: 0
+            }
+        }
     }
 });
 

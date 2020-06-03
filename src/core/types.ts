@@ -92,6 +92,7 @@ export interface OptionStateInterface {
 
 export interface VariableStateInterface {
     value: number;
+    options: number[];
 }
 
 export interface RootState {

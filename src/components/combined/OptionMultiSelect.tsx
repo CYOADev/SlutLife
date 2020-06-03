@@ -3,9 +3,11 @@ import styled from 'styled-components';
 import { connect, useStore } from 'react-redux';
 
 import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
+import Chip from '@material-ui/core/Chip';
 
 
-import { Option, ALL_OPTIONS } from 'core/util';
+import { Option, ALL_OPTIONS, get_name_strings } from 'core/util';
 import { ChangeOptionState } from 'core/actions';
 import { ValueType, RootState, DispatchType, OptionInputPropType, OptionPropType } from 'core/types';
 
@@ -21,57 +23,91 @@ const Container = styled.div`
 display: flex;
 flex-direction: row;
 margin-left: 10px;
-margin-bottom: 4px;
+margin-bottom: 8px;
+align-content: center;
 `;
 
 const SelectContainer = styled.div`
-margin-top: 12px;
+margin-top: 8px;
 margin-right: 8px;
-width: 72px;
 `;
 
-const round = (num: number) => {
-    return Math.round(num);
+const ChipContainer = styled.div`
+display: flex;
+flex-wrap: wrap;
+padding-top: 2px;
+padding-bottom: 4px;
+min-height: 32px;
+`;
+
+const ChipElement = styled(Chip)`
+margin-top: 2px;
+margin-left: 2px;
+`;
+
+const MenuProps = {
+    PaperProps: {
+        style: {width: 250}
+    },
+    anchorOrigin: {
+        vertical: "bottom" as "bottom",
+        horizontal: "left" as "left",
+    },
+    transformOrigin: {
+        vertical: "top" as "top",
+        horizontal: "left" as "left",
+    },
+    getContentAnchorEl: null
 }
 
-const getNumber = (elem: HTMLInputElement, max: number) => {
-    let value = parseFloat(elem.value);
-    if (value < 0) {
-        value = 0;
-    } else if (value > max) {
-        value = max;
+const get_chips = (
+    selected: number[],
+    name_strings: [string, number][],
+    name_strings_map: {[index: number]: number},
+    origin_name: string
+) => {
+    let values = selected.map(el => name_strings[name_strings_map[el]][0]);
+    if (name_strings.length !== 0 && selected.length === name_strings.length) {
+        let name = 'All Selected ' + origin_name;
+        return (
+            <ChipContainer>
+                <ChipElement key={name} label={name} variant="outlined"/>
+            </ChipContainer>
+        )
+    } else {
+        return (
+            <ChipContainer>
+                {values.map(name => (
+                    <ChipElement key={name} label={name} variant="outlined"/>
+                ))}
+            </ChipContainer>
+        )
     }
-    return round(value);
 }
 
-const OptionNumeric: React.FunctionComponent<OptionPropType> = (props) => {
+const OptionMultiSelect: React.FunctionComponent<OptionPropType> = (props) => {
     const { option_idx, valid, value, UpdateOptionValue } = props;
+    let value_array: number[] = [];
+    if (typeof value === 'object') {
+        value_array = value;
+    }
     let option: Option = ALL_OPTIONS[option_idx];
-    let max = Infinity;
-    let int_value = (typeof value === "number") ? round(value as number) : "";
     let state: RootState = useStore().getState();
-    if (option.type.length > 1) {
-        max = (option.type[1] || 0) as number;
-        if (max < 0) {
-            max = state.variables[-(max + 1)].value;
-        }
-    }
-    if (int_value !== "" && (int_value < 0 || int_value > max)) {
-        if (int_value < 0) {
-            int_value = 0;
-        } else {
-            int_value = max;
-        }
-        UpdateOptionValue(int_value);
-    }
+    let { name_strings, name_strings_map, origin_name } = get_name_strings(option_idx, state);
     return (
         <div>
             <OptionDivider option={option}/>
             <Container>
                 <SelectContainer>
-                    <Select multiple variant="outlined" disabled={!valid}
-                     inputProps={{style: {padding: 6}}} value={int_value}
-                     onChange={e => UpdateOptionValue(getNumber(e.target as HTMLInputElement, max))}/>
+                    <Select multiple displayEmpty variant="outlined" disabled={!valid}
+                     inputProps={{style: {padding: 6}}} value={value_array}
+                     onChange={e => UpdateOptionValue(((e.target as HTMLInputElement).value as unknown as number[]).sort((a, b) => a - b))}
+                     renderValue={selected => get_chips(selected as number[], name_strings, name_strings_map, origin_name)}
+                     MenuProps={MenuProps}>
+                         {name_strings.map(el => (
+                             <MenuItem key={el[1]} value={el[1]}> {el[0]} </MenuItem>
+                         ))}
+                    </Select>
                 </SelectContainer>
                 <OptionTitle option={option} valid={valid}/>
                 <OptionCredit option={option} valid={valid}/>
@@ -94,4 +130,4 @@ const mapDispatchToProps = (dispatch: DispatchType, ownProps: OptionInputPropTyp
     UpdateOptionValue: (value: ValueType) => dispatch(ChangeOptionState(ownProps.option_idx, value)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(OptionNumeric);
+export default connect(mapStateToProps, mapDispatchToProps)(OptionMultiSelect);

@@ -36,7 +36,7 @@ const round = (num: number) => {
 
 const getNumber = (elem: HTMLInputElement, max: number) => {
     let value = parseFloat(elem.value);
-    if (value < 0) {
+    if (typeof value !== 'number' || Number.isNaN(value) || value < 0) {
         value = 0;
     } else if (value > max) {
         value = max;
