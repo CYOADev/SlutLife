@@ -48,9 +48,9 @@ const get_conf_string = (conflict: ConflictType) => {
                 return ALL_OPTIONS[conf].name;
             }
         } else {
-            console.error("Type of conflict element is not string or number")
+            console.error("Type of conflict element is not string or number");
         }
-        return "UNDEFINED"
+        return "UNDEFINED";
     })
 }
 
@@ -117,20 +117,21 @@ function Initialize() {
 function constructOption(idx: number) {
     switch (ALL_OPTIONS[idx].type[0]) {
         case OptionTypes.BO:
-            return <OptionCheckbox option_idx={idx} key={idx}/>
+            return <OptionCheckbox option_idx={idx} key={idx}/>;
         case OptionTypes.CO:
-            return <OptionComment option_idx={idx} key={idx}/>
+            return <OptionComment option_idx={idx} key={idx}/>;
         case OptionTypes.FL:
-            return <OptionFloat option_idx={idx} key={idx}/>
+            return <OptionFloat option_idx={idx} key={idx}/>;
         case OptionTypes.NU:
-            return <OptionNumeric option_idx={idx} key={idx}/>
+            return <OptionNumeric option_idx={idx} key={idx}/>;
         case OptionTypes.TE:
-            return <OptionText option_idx={idx} key={idx}/>
-        case OptionTypes.OW:  // TODO: have actual custom option
-            return <OptionCheckbox option_idx={idx} key={idx}/>
+            return <OptionText option_idx={idx} key={idx}/>;
         case OptionTypes.EV:
         case OptionTypes.EV_EX:
-            return <OptionMultiSelect option_idx={idx} key={idx}/>
+            return <OptionMultiSelect option_idx={idx} key={idx}/>;
+        case OptionTypes.OW:  // TODO: have actual custom option
+        case OptionTypes.PU:  // TODO: have actual custom option
+            return <OptionCheckbox option_idx={idx} key={idx}/>;
     }
 }
 
@@ -169,7 +170,7 @@ const get_conf_checked = (option_idx: number, state: RootState) => {
             console.error("Type of conflict element is not string or number");
         }
         return false;
-    })
+    });
 }
 
 const filter_excl = (res: number[], filter: number, ev_list: number[], state: RootState) => {
