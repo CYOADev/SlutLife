@@ -11,7 +11,6 @@ import SectionHeader from 'components/combined/SectionHeader';
 
 const Container = styled.div`
 padding: 20px;
-margin-top: 10px;
 `;
 
 let listKey = 100000;
