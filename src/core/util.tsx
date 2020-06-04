@@ -129,6 +129,7 @@ function constructOption(idx: number) {
         case OptionTypes.OW:  // TODO: have actual custom option
             return <OptionCheckbox option_idx={idx} key={idx}/>
         case OptionTypes.EV:
+        case OptionTypes.EV_EX:
             return <OptionMultiSelect option_idx={idx} key={idx}/>
     }
 }
@@ -171,56 +172,86 @@ const get_conf_checked = (option_idx: number, state: RootState) => {
     })
 }
 
+const filter_excl = (res: number[], filter: number, ev_list: number[], state: RootState) => {
+    let filtered = false;
+    if (ALL_OPTIONS[filter].type[0] !== OptionTypes.EV_EX) {
+        return {res, filtered};
+    }
+    ev_list.forEach(el => {
+        if (el === filter || ALL_OPTIONS[el].type[0] !== OptionTypes.EV_EX) {
+            return;
+        }
+        let val = state.option[el].value;
+        if (typeof val === 'object') {
+            val.forEach(num => {
+                let idx = res.indexOf(num);
+                if (idx > -1) {
+                    filtered = true;
+                    res.splice(idx, 1);
+                }
+            });
+        }
+    })
+    return {res, filtered};
+};
+
+const get_nu_vals = (option_idx: number, filter: number, state: RootState) => {
+    let res = Array.from(Array(+state.option[option_idx].value).keys());
+    return filter_excl(res, filter, ALL_OPTIONS[option_idx].other_ev, state);
+};
+
+const get_ev_vals = (option_idx: number, filter: number, state: RootState) => {
+    let res = Array.from(state.option[option_idx].value as number[]);
+    return filter_excl(res, filter, ALL_OPTIONS[option_idx].other_ev, state);
+};
+
+const get_var_vals = (var_idx: number, filter: number, state: RootState) => {
+    let res = Array.from(state.variables[-(var_idx + 1)].options);
+    return filter_excl(res, filter, ALL_VARIABLES[-(var_idx + 1)].ev, state);
+};
+
 const get_name_strings = (option_idx: number, state: RootState) => {
-    let option: Option = ALL_OPTIONS[option_idx];
     let name_strings: [string, number][] = [];
     let name_strings_map: {[index: number]: number} = {};
     let origin_name = '';
     let idx = 0;
-    let other_idx = option.type[1] as number;
+    let other_idx = ALL_OPTIONS[option_idx].type[1] as number;
+    let res: number[];
+    let filtered = false;
     if (other_idx >= 0) {
         let other_option: Option = ALL_OPTIONS[other_idx];
-        let other_value = state.option[other_idx].value as number | number[];
         origin_name = other_option.name;
         if (other_option.type[0] === OptionTypes.NU) {
-            for (let i = 0; i < other_value; i++) {
-                name_strings.push([`#${i + 1} ${other_option.name}`, i]);
-                name_strings_map[i] = idx++;
-            }
+            ({res, filtered} = get_nu_vals(other_idx, option_idx, state));
+            res.forEach(el => {
+                name_strings.push([`#${el + 1} ${origin_name}`, el]);
+                name_strings_map[el] = idx++;
+            });
         } else if (other_option.type[0] === OptionTypes.EV || other_option.type[0] === OptionTypes.EV_EX) {
-            let parent_value = state.option[other_idx].value;
-            if (typeof parent_value === 'object') {
-                let parent_numeric = "";
-                let parent = other_option;
-                while (typeof parent.type[1] === 'number' && parent.type[1] >= 0) {
-                    parent = ALL_OPTIONS[parent.type[1]];
-                    if (typeof parent.type[0] === 'number' && parent.type[0] === OptionTypes.NU) {
-                        parent_numeric = parent.name;
-                        break;
-                    }
-                }
-                if (parent_numeric === "") {
-                    parent_value.forEach(el => {
-                        name_strings.push([ALL_OPTIONS[el].name, el]);
-                        name_strings_map[el] = idx++;
-                    });
-                } else {
-                    parent_value.forEach(el => {
-                        name_strings.push([`#${el + 1} ${parent_numeric}`, el]);
-                        name_strings_map[el] = idx++;
-                    });
+            ({res, filtered} = get_ev_vals(other_idx, option_idx, state));
+            let parent_numeric = "";
+            while (typeof other_option.type[1] === 'number' && other_option.type[1] >= 0) {
+                other_option = ALL_OPTIONS[other_option.type[1]];
+                if (other_option.type[0] === OptionTypes.NU) {
+                    parent_numeric = other_option.name;
+                    break;
                 }
             }
+            res.forEach(el => {
+                let str = parent_numeric === '' ? ALL_OPTIONS[el].name : `#${el + 1} ${parent_numeric}`;
+                name_strings.push([str, el]);
+                name_strings_map[el] = idx++;
+            })
         }
     } else {
+        ({res, filtered} = get_var_vals(other_idx, option_idx, state));
         origin_name = ALL_VARIABLES[-(other_idx + 1)].name;
-        let options = state.variables[-(other_idx + 1)].options;
-        options.forEach(el => {
+        res.forEach(el => {
             name_strings.push([ALL_OPTIONS[el].name, el]);
             name_strings_map[el] = idx++;
         });
     }
-    return { name_strings, name_strings_map, origin_name };
+    return { name_strings, name_strings_map, origin_name, filtered };
 };
 
 export { Initialize, ALL_OPTIONS, LAYOUT_DATA, COL_NAMES, ALL_VARIABLES, Option,

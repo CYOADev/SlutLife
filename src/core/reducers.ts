@@ -206,7 +206,17 @@ const changeVariables = (id: number, old_val: number, new_val: number, new_state
 const propogateEvery = (new_state: RootState, id: number) => {
     if (ALL_OPTIONS[id].type[0] !== OptionTypes.EV && ALL_OPTIONS[id].type[0] !== OptionTypes.EV_EX) {
         return;
-    } else if (ALL_OPTIONS[id].other_ev === undefined) {
+    }
+    if (ALL_OPTIONS[id].type[0] === OptionTypes.EV_EX) {
+        let parent_idx = ALL_OPTIONS[id].type[1] as number;
+        let parent_ev = parent_idx < 0 ? ALL_VARIABLES[-(parent_idx + 1)].ev : ALL_OPTIONS[parent_idx].other_ev;
+        parent_ev.forEach(el => {
+            if (el !== id && ALL_OPTIONS[el].type[0] === OptionTypes.EV_EX) {
+                new_state.option[el].update_val++;
+            }
+        });
+    }
+    if (ALL_OPTIONS[id].other_ev === undefined) {
         return;
     }
     let new_value = new_state.option[id].value as number[];

@@ -64,10 +64,11 @@ const get_chips = (
     selected: number[],
     name_strings: [string, number][],
     name_strings_map: {[index: number]: number},
-    origin_name: string
+    origin_name: string,
+    filtered: boolean
 ) => {
     let values = selected.map(el => name_strings[name_strings_map[el]][0]);
-    if (name_strings.length !== 0 && selected.length === name_strings.length) {
+    if (!filtered && name_strings.length !== 0 && selected.length === name_strings.length) {
         let name = 'All Selected ' + origin_name;
         return (
             <ChipContainer>
@@ -93,7 +94,7 @@ const OptionMultiSelect: React.FunctionComponent<OptionPropType> = (props) => {
     }
     let option: Option = ALL_OPTIONS[option_idx];
     let state: RootState = useStore().getState();
-    let { name_strings, name_strings_map, origin_name } = get_name_strings(option_idx, state);
+    let { name_strings, name_strings_map, origin_name, filtered } = get_name_strings(option_idx, state);
     return (
         <div>
             <OptionDivider option={option}/>
@@ -102,7 +103,7 @@ const OptionMultiSelect: React.FunctionComponent<OptionPropType> = (props) => {
                     <Select multiple displayEmpty variant="outlined" disabled={!valid}
                      inputProps={{style: {padding: 6}}} value={value_array}
                      onChange={e => UpdateOptionValue(((e.target as HTMLInputElement).value as unknown as number[]).sort((a, b) => a - b))}
-                     renderValue={selected => get_chips(selected as number[], name_strings, name_strings_map, origin_name)}
+                     renderValue={selected => get_chips(selected as number[], name_strings, name_strings_map, origin_name, filtered)}
                      MenuProps={MenuProps}>
                          {name_strings.map(el => (
                              <MenuItem key={el[1]} value={el[1]}> {el[0]} </MenuItem>
