@@ -85,7 +85,7 @@ const OptionNumeric: React.FunctionComponent<OptionPropType> = (props) => {
                      onBlur={e => UpdateOptionValue(getNumber(e.target as HTMLInputElement, max, setFocused, true))}/>
                 </NumericContainer>
                 <OptionTitle option={option} valid={valid}/>
-                <OptionCredit option={option} valid={valid}/>
+                <OptionCredit option_idx={option_idx} affected={state.option[option_idx].affected} valid={valid}/>
             </Container>
             <OptionRequires option_idx={option_idx} state={state} valid={valid}/>
             <OptionConflict option_idx={option_idx} state={state} valid={valid}/>

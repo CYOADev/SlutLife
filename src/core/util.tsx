@@ -69,6 +69,9 @@ class Option {
         if (data[Labels.CONFLICT])
             this.conflict = data[Labels.CONFLICT];
 
+        if (data[Labels.AFFECT])
+            this.affect = data[Labels.AFFECT];
+
         if (data[Labels.ROOMMATES])
             this.roommates = data[Labels.ROOMMATES];
         if (data[Labels.SALARY])
@@ -267,5 +270,28 @@ const get_name_strings = (option_idx: number, state: RootState) => {
     return { name_strings, name_strings_map, origin_name, filtered };
 };
 
+const calc_affected = (credits: number, affected: [number, number][]) => {
+    affected.forEach(el => {
+        switch(el[0]) {
+            case 0:
+                credits += el[1];
+                break;
+            case 1:
+                credits -= el[1];
+                break;
+            case 2:
+                credits *= el[1];
+                break;
+            case 3:
+                credits /= el[1];
+                break;
+            case 4:
+                credits = el[1];
+                break;
+        }
+    });
+    return credits;
+}
+
 export { Initialize, PostInit, ALL_OPTIONS, LAYOUT_DATA, COL_NAMES, ALL_VARIABLES, Option,
-    constructOption, get_requ_checked, get_conf_checked, get_name_strings };
+    constructOption, get_requ_checked, get_conf_checked, get_name_strings, calc_affected };

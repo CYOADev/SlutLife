@@ -5,7 +5,7 @@ import Typography from '@material-ui/core/Typography';
 
 
 import colors from 'constants/Color';
-import { Option } from 'core/util';
+import { ALL_OPTIONS, calc_affected } from 'core/util';
 
 
 const Credit = styled(Typography)<{valid: number}>`
@@ -15,9 +15,10 @@ margin-left: 10px;
 color: ${props => props.valid ? colors.ValidText : colors.InvalidText};
 `;
 
-const OptionCredit: React.FunctionComponent<{option: Option, valid: boolean}> = (props) => {
+const OptionCredit: React.FunctionComponent<{option_idx: number, affected: [number, number][], valid: boolean}> = (props) => {
+    let credits = calc_affected(ALL_OPTIONS[props.option_idx].credits, props.affected);
     return (
-        <Credit valid={+props.valid}>{ props.option.credits }</Credit>
+        <Credit valid={+props.valid}>{ credits }</Credit>
     );
 };
 

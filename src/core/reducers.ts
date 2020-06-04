@@ -1,7 +1,7 @@
 import produce from 'immer';
 
 
-import { ALL_OPTIONS, ALL_VARIABLES } from 'core/util';
+import { ALL_OPTIONS, ALL_VARIABLES, calc_affected } from 'core/util';
 import { Actions } from 'core/actions';
 import {
     ValueType,
@@ -9,7 +9,8 @@ import {
     ActionInterface,
     RootState,
     VariableStateInterface,
-    OptionTypes
+    OptionTypes,
+    AffectType,
 } from 'core/types';
 
 
@@ -48,6 +49,7 @@ const does_change = (idx: number, prev_id: number, new_state: RootState) => {
 
 const get_credit_change = (new_state: RootState, id: number, value: ValueType) => {
     let num_credits = ALL_OPTIONS[id].credits;
+    num_credits = calc_affected(num_credits, new_state.option[id].affected);
     let old_value = new_state.option[id].value;
     let old_value_number = 0;
     let new_value_number = 0;
@@ -63,18 +65,35 @@ const get_credit_change = (new_state: RootState, id: number, value: ValueType) =
     }
     if (![OptionTypes.FL, OptionTypes.TE, OptionTypes.CM].includes(ALL_OPTIONS[id].type[0])) {
         if (ALL_OPTIONS[id].type[0] === OptionTypes.EV_CRE) {
-            if (typeof old_value === 'object') {
-                old_value.forEach(el => new_state.credits -= ALL_OPTIONS[el].credits);
-            }
+            num_credits = 0;
             if (typeof value === 'object') {
-                value.forEach(el => new_state.credits += ALL_OPTIONS[el].credits);
+                value.forEach(el => {
+                    let temp_credits = ALL_OPTIONS[el].credits;
+                    temp_credits = calc_affected(temp_credits, new_state.option[el].affected);
+                    num_credits += temp_credits;
+                });
             }
         } else {
-            new_state.credits += (new_value_number - old_value_number) * num_credits
+            num_credits = new_value_number * num_credits
         }
+    } else {
+        num_credits = 0;
     }
+    new_state.credits += num_credits - new_state.option[id].credits;
+    new_state.option[id].credits = num_credits;
     new_state.option[id].value = value;
     return { old_value, old_value_number, new_value_number };
+}
+
+const setInvalid = (idx: number, new_state: RootState) => {
+    let { old_value, old_value_number } = get_credit_change(new_state, idx, false);
+    if (old_value) {
+        propogateFalsy(idx, new_state);
+        changeVariables(idx, old_value_number, 0, new_state);
+        propogateNumeric(new_state, idx, old_value_number, 0);
+        setAffe(idx, false, new_state);
+    }
+    new_state.option[idx].valid = false;
 }
 
 const propogateTruthy = (idx: number, new_state: RootState, filter=-1) => {
@@ -106,13 +125,7 @@ const propogateTruthy = (idx: number, new_state: RootState, filter=-1) => {
         }
         let num_requ = get_num_requ(el)
         if (--new_state.option[el].valid_num !== num_requ) {
-            let { old_value, old_value_number } = get_credit_change(new_state, el, false);
-            if (old_value) {
-                propogateFalsy(el, new_state);
-                changeVariables(el, old_value_number, 0, new_state);
-                propogateNumeric(new_state, el, old_value_number, 0);
-            }
-            new_state.option[el].valid = false;
+            setInvalid(el, new_state);
         }
     })
 }
@@ -127,13 +140,7 @@ const propogateFalsy = (idx: number, new_state: RootState, filter=-1) => {
     other_requ.forEach(el => {
         if (does_change(el, idx, new_state)) {
             if (--new_state.option[el].valid_num !== get_num_requ(el)) {
-                let { old_value, old_value_number } = get_credit_change(new_state, el, false);
-                if (old_value) {
-                    propogateFalsy(el, new_state);
-                    changeVariables(el, old_value_number, 0, new_state);
-                    propogateNumeric(new_state, el, old_value_number, 0);
-                }
-                new_state.option[el].valid = false;
+                setInvalid(el, new_state)
             }
         } else {
             new_state.option[el].update_val++;
@@ -156,6 +163,23 @@ const propogateFalsy = (idx: number, new_state: RootState, filter=-1) => {
             new_state.option[el].update_val++;
         }
     });
+}
+
+const setAffe = (id: number, value: ValueType, new_state: RootState) => {
+    if (typeof ALL_OPTIONS[id].affect === 'object') {
+        Object.entries(ALL_OPTIONS[id].affect as AffectType).forEach(el => {
+            let key = parseInt(el[0]);
+            if (value) {
+                new_state.option[key].affected.push(el[1] as [number, number]);
+                new_state.option[key].affected.sort((a, b) => a[0] - b[0]);
+                get_credit_change(new_state, key, new_state.option[key].value);
+            } else {
+                let res = new_state.option[key].affected.filter(x => x[0] !== el[1][0] || x[1] !== el[1][1]);
+                new_state.option[key].affected = res;
+            }
+            new_state.option[key].update_val++;
+        });
+    }
 }
 
 const propogateVariables = (
@@ -270,6 +294,7 @@ const ChangeOptionState = (state: RootState, value: ValueType, id: number) => {
         propogateNumeric(new_state, id, old_value as number, value as number);
         propogateEvery(new_state, id);
         changeVariables(id, old_value_number, new_value_number, new_state);
+        setAffe(id, value, new_state)
         if (!old_value !== !value) {
             if (value) {
                 propogateTruthy(id, new_state);
@@ -309,6 +334,8 @@ const GetInitialState = () => {
             value: false,
             valid_num: 0,
             update_val: 0,
+            affected: [],
+            credits: 0,
         }
     }
     let VariableInitialState: VariableStateInterface[] = Array(ALL_VARIABLES.length);

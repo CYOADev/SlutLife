@@ -49,6 +49,8 @@ export type RequiresType = (number | number[])[];
 
 export type ConflictType = number[];
 
+export type AffectType = {[index: number]: number[]};
+
 export type VariableType = [string, number[], number[], number[], number[]][];
 
 export interface VariableInterface {
@@ -66,6 +68,7 @@ export interface OptionInterface {
 
     requires?: RequiresType;
     conflict?: ConflictType;
+    affect?: AffectType;
     roommates?: number;
     salary?: number;
 
@@ -87,6 +90,8 @@ export interface OptionStateInterface {
     valid: boolean;
     valid_num: number;
     update_val: number;
+    affected: [number, number][];
+    credits: number;
 }
 
 export interface VariableStateInterface {

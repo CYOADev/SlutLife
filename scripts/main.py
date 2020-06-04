@@ -211,8 +211,15 @@ class Option():
         res = {}
         for i in re.findall("(.*?)→(.*?)(?:,|$)", data):
             op = i[1].strip()
+            # 0: plus, 1: minus, 2: multiply, 3: divide, 4: set
+            op_sign = 4
+            op_num = op
+            if op[0] in '+-×÷':
+                op_sign = '+-×÷'.index(op[0])
+                op_num = op[1:]
+            op_num = int(op_num)
             for j in i[0].split(','):
-                res[j.strip()] = op
+                res[j.strip()] = [op_sign, op_num]
         return res
 
     def handle_append(self, data):
@@ -446,6 +453,19 @@ def finalize_type():
                 i.data[Labels.TYPE] = (_type[0], option_id)
 
 
+def finalize_affe():
+    for ii, i in enumerate(options):
+        if Labels.AFFECT not in i.data:
+            continue
+        for j, k in i.data[Labels.AFFECT].items():
+            option_id = find_option_by_name(j)
+            if type(option_id) is str:
+                print(f"option {option_id} cannot be recognized")
+                continue
+            del i.data[Labels.AFFECT][j]
+            i.data[Labels.AFFECT][option_id] = k
+
+
 def finalize_variables():
     result = []
     for ii, i in enumerate(variables):
@@ -458,6 +478,7 @@ def finalize_options():
     finalize_conf()
     finalize_option_variables()
     finalize_type()
+    finalize_affe()
     result = []
     for ii, i in enumerate(options):
         result.append(i.data)
