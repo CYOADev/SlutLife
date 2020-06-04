@@ -172,11 +172,11 @@ const setAffe = (id: number, value: ValueType, new_state: RootState) => {
             if (value) {
                 new_state.option[key].affected.push(el[1] as [number, number]);
                 new_state.option[key].affected.sort((a, b) => a[0] - b[0]);
-                get_credit_change(new_state, key, new_state.option[key].value);
             } else {
                 let res = new_state.option[key].affected.filter(x => x[0] !== el[1][0] || x[1] !== el[1][1]);
                 new_state.option[key].affected = res;
             }
+            get_credit_change(new_state, key, new_state.option[key].value);
             new_state.option[key].update_val++;
         });
     }
