@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { connect, useStore } from 'react-redux';
 
@@ -34,9 +34,16 @@ const round = (num: number) => {
     return Math.round(num);
 }
 
-const getNumber = (elem: HTMLInputElement, max: number) => {
+const getNumber = (elem: HTMLInputElement, max: number, setFocused: (x: boolean) => void, validate: boolean) => {
+    setFocused(!validate);
     let value = parseFloat(elem.value);
-    if (typeof value !== 'number' || Number.isNaN(value) || value < 0) {
+    if (Number.isNaN(value)) {
+        return false;
+    }
+    if (!validate) {
+        return round(value);
+    }
+    if (value < 0) {
         value = 0;
     } else if (value > max) {
         value = max;
@@ -46,23 +53,26 @@ const getNumber = (elem: HTMLInputElement, max: number) => {
 
 const OptionNumeric: React.FunctionComponent<OptionPropType> = (props) => {
     const { option_idx, valid, value, UpdateOptionValue } = props;
+    let [ focused, setFocused ] = useState(false);
     let option: Option = ALL_OPTIONS[option_idx];
     let max = Infinity;
     let int_value = (typeof value === "number") ? round(value as number) : "";
     let state: RootState = useStore().getState();
-    if (option.type.length > 1) {
-        max = (option.type[1] || 0) as number;
-        if (max < 0) {
-            max = state.variables[-(max + 1)].value;
+    if (!focused) {
+        if (option.type.length > 1) {
+            max = (option.type[1] || 0) as number;
+            if (max < 0) {
+                max = state.variables[-(max + 1)].value;
+            }
         }
-    }
-    if (int_value !== "" && (int_value < 0 || int_value > max)) {
-        if (int_value < 0) {
-            int_value = 0;
-        } else {
-            int_value = max;
+        if (int_value !== "" && (int_value < 0 || int_value > max)) {
+            if (int_value < 0) {
+                int_value = 0;
+            } else {
+                int_value = max;
+            }
+            UpdateOptionValue(int_value);
         }
-        UpdateOptionValue(int_value);
     }
     return (
         <div>
@@ -71,7 +81,8 @@ const OptionNumeric: React.FunctionComponent<OptionPropType> = (props) => {
                 <NumericContainer>
                     <TextField type="number" variant="outlined" disabled={!valid}
                      inputProps={{style: {padding: 6}}} value={int_value}
-                     onChange={e => UpdateOptionValue(getNumber(e.target as HTMLInputElement, max))}/>
+                     onChange={e => UpdateOptionValue(getNumber(e.target as HTMLInputElement, max, setFocused, false))}
+                     onBlur={e => UpdateOptionValue(getNumber(e.target as HTMLInputElement, max, setFocused, true))}/>
                 </NumericContainer>
                 <OptionTitle option={option} valid={valid}/>
                 <OptionCredit option={option} valid={valid}/>

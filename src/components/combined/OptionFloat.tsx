@@ -34,7 +34,10 @@ const round = (num: number) => {
     return parseFloat(num.toFixed(2));
 }
 
-const getNumber = (elem: HTMLInputElement, min: number, max: number) => {
+const getNumber = (elem: HTMLInputElement, min: number, max: number, validate: boolean) => {
+    if (!validate) {
+        return elem.valueAsNumber - min;
+    }
     let value = elem.valueAsNumber;
     if (typeof value !== "number") {
         return false;
@@ -62,7 +65,8 @@ const OptionFloat: React.FunctionComponent<OptionPropType> = (props) => {
                 <NumericContainer>
                     <TextField type="number" variant="outlined" disabled={!valid}
                      inputProps={{style: {padding: 6}}} value={float_value}
-                     onChange={e => UpdateOptionValue(getNumber(e.target as HTMLInputElement, min, max))}/>
+                     onChange={e => UpdateOptionValue(getNumber(e.target as HTMLInputElement, min, max, false))}
+                     onBlur={e => UpdateOptionValue(getNumber(e.target as HTMLInputElement, min, max, true))}/>
                 </NumericContainer>
             </Container>
             <OptionRequires option_idx={option_idx} state={state} valid={valid}/>
