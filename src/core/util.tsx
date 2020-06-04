@@ -10,6 +10,8 @@ import OptionNumeric from 'components/combined/OptionNumeric';
 import OptionText from 'components/combined/OptionText';
 import OptionMultiSelect from 'components/combined/OptionMultiSelect';
 
+import { ChangeOptionState } from './actions';
+
 import {
     Labels,
     OptionTypes,
@@ -19,6 +21,7 @@ import {
     ConflictType,
     VariableType,
     VariableInterface,
+    ActionInterface,
 } from './types';
 
 
@@ -94,7 +97,7 @@ const VARIABLE_DATA: VariableType = SHEET_DATA['variables'] as VariableType;
 const COL_NAMES = SHEET_DATA['col_names'];
 let ALL_VARIABLES: VariableInterface[] = [];
 
-function Initialize() {
+const Initialize = () => {
     ALL_OPTIONS = OPTION_DATA.map(el => new Option(el));
     ALL_VARIABLES = VARIABLE_DATA.map(el => ({
         name: el[0], requ: el[1], conf: el[2], affe: el[3], ev: el[4],
@@ -112,13 +115,21 @@ function Initialize() {
     console.log(ALL_OPTIONS);
     console.log(ALL_VARIABLES);
     console.log(COL_NAMES);
-}
+};
 
-function constructOption(idx: number) {
+const PostInit = (store: {dispatch: (action: ActionInterface) => void}) => {
+    ALL_OPTIONS.forEach((el, idx) => {
+        if (el.type[0] === OptionTypes.CM) {
+            store.dispatch(ChangeOptionState(idx, true));
+        }
+    });
+};
+
+const constructOption = (idx: number) => {
     switch (ALL_OPTIONS[idx].type[0]) {
         case OptionTypes.BO:
             return <OptionCheckbox option_idx={idx} key={idx}/>;
-        case OptionTypes.CO:
+        case OptionTypes.CM:
             return <OptionComment option_idx={idx} key={idx}/>;
         case OptionTypes.FL:
             return <OptionFloat option_idx={idx} key={idx}/>;
@@ -128,6 +139,7 @@ function constructOption(idx: number) {
             return <OptionText option_idx={idx} key={idx}/>;
         case OptionTypes.EV:
         case OptionTypes.EV_EX:
+        case OptionTypes.EV_CRE:
             return <OptionMultiSelect option_idx={idx} key={idx}/>;
         case OptionTypes.OW:  // TODO: have actual custom option
         case OptionTypes.PU:  // TODO: have actual custom option
@@ -228,7 +240,7 @@ const get_name_strings = (option_idx: number, state: RootState) => {
                 name_strings.push([`#${el + 1} ${origin_name}`, el]);
                 name_strings_map[el] = idx++;
             });
-        } else if (other_option.type[0] === OptionTypes.EV || other_option.type[0] === OptionTypes.EV_EX) {
+        } else if ([OptionTypes.EV, OptionTypes.EV_EX, OptionTypes.EV_CRE].includes(other_option.type[0])) {
             ({res, filtered} = get_ev_vals(other_idx, option_idx, state));
             let parent_numeric = "";
             while (typeof other_option.type[1] === 'number' && other_option.type[1] >= 0) {
@@ -255,5 +267,5 @@ const get_name_strings = (option_idx: number, state: RootState) => {
     return { name_strings, name_strings_map, origin_name, filtered };
 };
 
-export { Initialize, ALL_OPTIONS, LAYOUT_DATA, COL_NAMES, ALL_VARIABLES, Option,
+export { Initialize, PostInit, ALL_OPTIONS, LAYOUT_DATA, COL_NAMES, ALL_VARIABLES, Option,
     constructOption, get_requ_checked, get_conf_checked, get_name_strings };

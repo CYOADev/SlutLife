@@ -28,12 +28,11 @@ export enum OptionTypes {
     FL = 2,  // Implemented
     EV = 3,  // Implemented
     EV_EX = 4,  // Implemented
-    CON = 5,
-    CON_EX = 6,  // Does not exist yet
-    TE = 7,  // Implemented
-    OW = 8,  // Partially Implemented
-    PU = 9,  // Partially Implemented
-    CO = 10,  // Implemented
+    EV_CRE = 5,  // Implemented
+    TE = 6,  // Implemented
+    OW = 7,  // Partially Implemented
+    PU = 8,  // Partially Implemented
+    CM = 9,  // Implemented
 }
 
 export type ValueType = number | number[] | boolean | string;

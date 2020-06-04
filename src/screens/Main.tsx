@@ -8,7 +8,7 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import ThemeProvider from '@material-ui/styles/ThemeProvider';
 
 
-import { Initialize, COL_NAMES } from 'core/util';
+import { Initialize, PostInit, COL_NAMES } from 'core/util';
 import { Reducer, GetInitialState } from 'core/reducers'
 import colors from 'constants/Color';
 
@@ -43,6 +43,7 @@ const theme = createMuiTheme({
 const Main: React.FunctionComponent = () => {
     Initialize();
     let store = createStore(Reducer, GetInitialState(), (window as any).__REDUX_DEVTOOLS_EXTENSION__ && (window as any).__REDUX_DEVTOOLS_EXTENSION__());
+    PostInit(store);
     let sections: JSX.Element[] = [];
     for (let i = 0; i < COL_NAMES.length; i++) {
         sections.push(<Section section_idx={i} key={i}/>);

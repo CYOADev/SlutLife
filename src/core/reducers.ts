@@ -50,18 +50,29 @@ const get_credit_change = (new_state: RootState, id: number, value: ValueType) =
     let num_credits = ALL_OPTIONS[id].credits;
     let old_value = new_state.option[id].value;
     let old_value_number = 0;
+    let new_value_number = 0;
     if (typeof old_value === "boolean" || typeof old_value === "number") {
         old_value_number = +old_value;
     } else if (typeof old_value === "object") {
         old_value_number = old_value.length;
     }
-    let new_value_number = 0;
     if (typeof value === "boolean" || typeof value === "number") {
         new_value_number = +value;
     } else if (typeof value === "object") {
         new_value_number = value.length;
     }
-    new_state.credits += (new_value_number - old_value_number) * num_credits
+    if (![OptionTypes.FL, OptionTypes.TE, OptionTypes.CM].includes(ALL_OPTIONS[id].type[0])) {
+        if (ALL_OPTIONS[id].type[0] === OptionTypes.EV_CRE) {
+            if (typeof old_value === 'object') {
+                old_value.forEach(el => new_state.credits -= ALL_OPTIONS[el].credits);
+            }
+            if (typeof value === 'object') {
+                value.forEach(el => new_state.credits += ALL_OPTIONS[el].credits);
+            }
+        } else {
+            new_state.credits += (new_value_number - old_value_number) * num_credits
+        }
+    }
     new_state.option[id].value = value;
     return { old_value, old_value_number, new_value_number };
 }
@@ -204,7 +215,7 @@ const changeVariables = (id: number, old_val: number, new_val: number, new_state
 }
 
 const propogateEvery = (new_state: RootState, id: number) => {
-    if (ALL_OPTIONS[id].type[0] !== OptionTypes.EV && ALL_OPTIONS[id].type[0] !== OptionTypes.EV_EX) {
+    if (![OptionTypes.EV, OptionTypes.EV_EX, OptionTypes.EV_CRE].includes(ALL_OPTIONS[id].type[0])) {
         return;
     }
     if (ALL_OPTIONS[id].type[0] === OptionTypes.EV_EX) {

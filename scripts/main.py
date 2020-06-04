@@ -68,12 +68,11 @@ class OptionTypes(IntEnum):
     FL = 2
     EV = 3
     EV_EX = 4
-    CON = 5
-    CON_EX = 6
-    TE = 7
-    OW = 8
-    PU = 9
-    CO = 10
+    EV_CRE = 5
+    TE = 6
+    OW = 7
+    PU = 8
+    CM = 9
 
 
 class OtherOptionTypes(IntEnum):
@@ -143,7 +142,7 @@ class Option():
         'TE': OptionTypes.TE,
         'OW': OptionTypes.OW,
         'PU': OptionTypes.PU,
-        'CM': OptionTypes.CO
+        'CM': OptionTypes.CM
     }
 
     def process_first_type(self, data):
@@ -156,10 +155,10 @@ class Option():
             return self.handle_fl(data)
         elif input_type == 'EV':
             return self.handle_ev(data)
-        elif input_type == 'CO':
-            return self.handle_co(data)
+        elif data[:3] == 'CON':
+            return self.handle_con(data)
         else:
-            print(f'Unknown type: {data}, row: {self.index}')
+            print(f'Unknown type: {data}, name: {self.data[Labels.NAME]}')
 
     def process_other_type(self, data):
         if data[:3] == 'WIP':
@@ -185,16 +184,15 @@ class Option():
                 float(data.split()[2]))
 
     def handle_ev(self, data):
-        if len(data) < 5 or data[3:5] != 'EX':
-            return (OptionTypes.EV, data[2:].strip())
-        else:
+        if data[3:5] == 'EX':
             return (OptionTypes.EV_EX, data[5:].strip())
-
-    def handle_co(self, data):
-        if len(data) < 5 or data[3:5] != 'EX':
-            return (OptionTypes.CON,)
+        elif data[3:6] == 'CRE':
+            return (OptionTypes.EV_CRE, data[6:].strip())
         else:
-            return (OptionTypes.CON_EX, data[5:].strip())
+            return (OptionTypes.EV, data[2:].strip())
+
+    def handle_con(self, data):
+        return (OptionTypes.EV_CRE, 'Controller')
 
     def handle_int(self, data):
         return int(data)
@@ -432,7 +430,8 @@ def finalize_type():
                 var_id = get_idx_from_id(find_var_pos_by_name(_type[1]))
                 i.data[Labels.TYPE] = (OptionTypes.NU, var_id)
                 get_variable_from_id(var_id).affe.append(ii)
-            elif _type[0] == OptionTypes.EV:
+            elif _type[0] in {OptionTypes.EV, OptionTypes.EV_EX,
+                              OptionTypes.EV_CRE}:
                 option_id = find_option_by_name(_type[1])
                 if type(option_id) is str:
                     option_id = get_idx_from_id(find_var_pos_by_name(_type[1]))
@@ -444,20 +443,7 @@ def finalize_type():
                             i.data[Labels.REQUIRES] = []
                         i.data[Labels.REQUIRES].append(option_id)
                         opt_add_other_req(ii, option_id)
-                i.data[Labels.TYPE] = (OptionTypes.EV, option_id)
-            elif _type[0] == OptionTypes.EV_EX:
-                option_id = find_option_by_name(_type[1])
-                if type(option_id) is str:
-                    option_id = get_idx_from_id(find_var_pos_by_name(_type[1]))
-                    get_variable_from_id(option_id).ev.append(ii)
-                else:
-                    opt_add_other_ev(ii, option_id)
-                    if option_id not in (i.data.get(Labels.REQUIRES) or []):
-                        if Labels.REQUIRES not in i.data:
-                            i.data[Labels.REQUIRES] = []
-                        i.data[Labels.REQUIRES].append(option_id)
-                        opt_add_other_req(ii, option_id)
-                i.data[Labels.TYPE] = (OptionTypes.EV_EX, option_id)
+                i.data[Labels.TYPE] = (_type[0], option_id)
 
 
 def finalize_variables():
