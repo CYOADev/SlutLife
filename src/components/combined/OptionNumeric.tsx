@@ -41,7 +41,7 @@ const getNumber = (elem: HTMLInputElement, max: number, setFocused: (x: boolean)
         return false;
     }
     if (!validate) {
-        return round(value);
+        return Math.max(round(value), 0);
     }
     if (value < 0) {
         value = 0;
