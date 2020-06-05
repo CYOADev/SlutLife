@@ -6,14 +6,15 @@ let magenta = "#E64398";
 // let red = "#BD3548";
 let black = "#111111";
 let lightGray = "#AAAAAA";
-let lightGreen = "#7aeb7a";
+// let lightGreen = "#7aeb7a";
+let deepBlue = "#536dfe"
 
 
 export default {
     BackgroundColor: white,
     ValidText: black,
     InvalidText: lightGray,
-    CheckedColor: lightGreen,
+    CheckedColor: deepBlue,
     UncheckedColor: pink,
     PrimaryColor: lightBlue,
     SecondaryColor: magenta,
