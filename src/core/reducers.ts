@@ -290,6 +290,9 @@ const propogateNumeric = (new_state: RootState, id: number, old_value: number, n
 
 const ChangeOptionState = (state: RootState, value: ValueType, id: number) => {
     return produce(state, new_state => {
+        if (typeof value === 'object' && value.length === 0) {
+            value = false;
+        }
         let { old_value, old_value_number, new_value_number } = get_credit_change(new_state, id, value);
         propogateNumeric(new_state, id, old_value as number, value as number);
         propogateEvery(new_state, id);

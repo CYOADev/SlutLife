@@ -457,13 +457,14 @@ def finalize_affe():
     for ii, i in enumerate(options):
         if Labels.AFFECT not in i.data:
             continue
+        res = {}
         for j, k in i.data[Labels.AFFECT].items():
             option_id = find_option_by_name(j)
             if type(option_id) is str:
                 print(f"option {option_id} cannot be recognized")
                 continue
-            del i.data[Labels.AFFECT][j]
-            i.data[Labels.AFFECT][option_id] = k
+            res[option_id] = k
+        i.data[Labels.AFFECT] = res
 
 
 def finalize_variables():
