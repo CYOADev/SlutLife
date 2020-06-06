@@ -7,9 +7,6 @@ import re
 from column_names import col_names
 
 
-# TODO: Implement affe
-# TODO: Implement ev
-
 options = []
 variables = []
 
