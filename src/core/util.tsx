@@ -21,7 +21,7 @@ import {
     ConflictType,
     VariableType,
     VariableInterface,
-    ActionInterface,
+    ActionType,
 } from './types';
 
 
@@ -120,7 +120,7 @@ const Initialize = () => {
     console.log(COL_NAMES);
 };
 
-const PostInit = (store: {dispatch: (action: ActionInterface) => void}) => {
+const PostInit = (store: {dispatch: (action: ActionType) => void}) => {
     ALL_OPTIONS.forEach((el, idx) => {
         if (el.type[0] === OptionTypes.CM) {
             store.dispatch(ChangeOptionState(idx, true));

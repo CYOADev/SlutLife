@@ -37,13 +37,29 @@ export enum OptionTypes {
 
 export type ValueType = number | number[] | boolean | string;
 
-export interface ActionInterface {
-    type: Actions;
+export type ActionChangeOptionStateType = {
+    type: Actions.CHANGE_OPTION_STATE;
     payload: {
         id: number;
         value: ValueType;
-    }
+    };
 }
+
+export type ActionChangeTabType = {
+    type: Actions.CHANGE_TAB;
+    payload: {
+        id: number;
+    };
+}
+
+export type ActionResetState = {
+    type: Actions.RESET_STATE;
+    payload: {
+        state: RootState;
+    };
+}
+
+export type ActionType = ActionChangeOptionStateType | ActionChangeTabType | ActionResetState;
 
 export type RequiresType = (number | number[])[];
 

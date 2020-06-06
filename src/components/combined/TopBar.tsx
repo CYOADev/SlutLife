@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { connect } from 'react-redux';
+import { connect, useStore } from 'react-redux';
 
 import Typography from '@material-ui/core/Typography';
 import AppBar from '@material-ui/core/AppBar';
@@ -19,7 +19,7 @@ import colors from 'constants/Color';
 
 import { RootState, DispatchType } from 'core/types';
 
-import { ChangeTab } from 'core/actions';
+import { ChangeTab, ResetState } from 'core/actions';
 
 
 const CreditText = styled(Typography)`
@@ -57,9 +57,44 @@ const TopBar: React.FunctionComponent<{
     credits: number,
     page_id: number,
     UpdateTab: (page_id: number) => void,
+    LoadState: (state: RootState) => void,
 }> = (props) => {
     let tab_idx = 0;
     let [ drawerOpen, setDrawerOpen ] = useState(false);
+    let state: RootState = useStore().getState();
+    const save_to_local_storage = () => {
+        try {
+            localStorage.setItem("data", JSON.stringify(state));
+            alert("Saved successfully");
+        } catch (err) {
+            alert("Failed to save to local storage");
+        }
+    };
+    const load_from_local_storage = () => {
+        let res = localStorage.getItem("data");
+        try {
+            if (res !== null) {
+                props.LoadState(JSON.parse(res));
+                alert("Loaded successfully");
+            } else {
+                alert("Data does not exist");
+            }
+        } catch (err) {
+            alert("Failed to load from local storage");
+        }
+    };
+    const save_to_file = () => {
+        const a = document.createElement("a");
+        const file = new Blob([JSON.stringify(state)], {type: "application/json"});
+        a.href = URL.createObjectURL(file);
+        a.download = "data.json";
+        a.click();
+        alert("Loading from file implemented yet");
+    };
+    const load_from_file = () => {
+        // TODO: load from file
+        alert("Not implemented yet");
+    }
     return (
         <>
             <TopAppBar position="sticky">
@@ -81,13 +116,17 @@ const TopBar: React.FunctionComponent<{
                         </IconButton>
                     </BackIconContainer>
                     <Divider/>
-                    <SettingButton variant="outlined" onClick={() => alert("Not implemented yet")}>Save to Local Storage</SettingButton>
+                    <SettingButton variant="outlined" onClick={save_to_local_storage}>Save to Local Storage</SettingButton>
                     <Divider/>
-                    <SettingButton variant="outlined" onClick={() => alert("Not implemented yet")}>Download to File</SettingButton>
+                    <SettingButton variant="outlined" onClick={save_to_file}>Download to File</SettingButton>
                     <Divider/>
-                    <SettingButton variant="outlined" onClick={() => alert("Not implemented yet")}>Load from Local Storage</SettingButton>
+                    <SettingButton variant="outlined" onClick={load_from_local_storage}>Load from Local Storage</SettingButton>
                     <Divider/>
-                    <SettingButton variant="outlined" onClick={() => alert("Not implemented yet")}>Load from File</SettingButton>
+                    <label htmlFor="upload-file-button">
+                        <Button variant="outlined" component="span" onClick={load_from_file}
+                         style={{width: "93.49%", margin: 8}}>Load from File</Button>
+                    </label>
+                    <input type="file" id="upload-file-button" hidden/>
                 </DrawerContainer>
             </Drawer>
         </>
@@ -101,6 +140,7 @@ const mapStateToProps = (state: RootState) => ({
 
 const mapDispatchToProps = (dispatch: DispatchType) => ({
     UpdateTab: (page_id: number) => dispatch(ChangeTab(page_id)),
+    LoadState: (state: RootState) => dispatch(ResetState(state)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(TopBar);

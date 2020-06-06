@@ -6,7 +6,7 @@ import { Actions } from 'core/actions';
 import {
     ValueType,
     OptionStateInterface,
-    ActionInterface,
+    ActionType,
     RootState,
     VariableStateInterface,
     OptionTypes,
@@ -316,13 +316,15 @@ const ChangeTabState = (state: RootState, id: number) => {
 
 const Reducer = (
     state: RootState = {option: [], variables: [], credits: 0, page_id: 0},
-    action: ActionInterface
+    action: ActionType
 ) => {
     switch (action.type) {
         case Actions.CHANGE_OPTION_STATE:
             return ChangeOptionState(state, action.payload.value, action.payload.id);
         case Actions.CHANGE_TAB:
             return ChangeTabState(state, action.payload.id);
+        case Actions.RESET_STATE:
+            return action.payload.state;
         default:
             // console.error("ACTION NOT RECOGNIZED: " + action.type);
     }
