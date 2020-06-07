@@ -10,6 +10,8 @@ import IconButton from '@material-ui/core/IconButton';
 import Drawer from '@material-ui/core/Drawer';
 import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
+import Snackbar from '@material-ui/core/Snackbar';
+import MuiAlert from '@material-ui/lab/Alert';
 
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
@@ -62,12 +64,24 @@ const TopBar: React.FunctionComponent<{
     let tab_idx = 0;
     let [ drawerOpen, setDrawerOpen ] = useState(false);
     let state: RootState = useStore().getState();
+    const inputRef = React.createRef<HTMLInputElement>();
+
+    let [ snackbarOpen, setSnackbarOpen ] = useState(false);
+    let [ snackbarSeverity, setSnackbarSeverity ] = useState('');
+    let [ snackbarText, setSnackbarText ] = useState('success');
+
+    const set_message = (text: string, severity: string) => {
+        setSnackbarOpen(true);
+        setSnackbarSeverity(severity);
+        setSnackbarText(text);
+    }
+
     const save_to_local_storage = () => {
         try {
             localStorage.setItem("data", JSON.stringify(state));
-            alert("Saved successfully");
+            set_message("Saved successfully", "success");
         } catch (err) {
-            alert("Failed to save to local storage");
+            set_message("Failed to save to local storage", "error");
         }
     };
     const load_from_local_storage = () => {
@@ -75,12 +89,12 @@ const TopBar: React.FunctionComponent<{
         try {
             if (res !== null) {
                 props.LoadState(JSON.parse(res));
-                alert("Loaded successfully");
+                set_message("Loaded successfully", "success");
             } else {
-                alert("Data does not exist");
+                set_message("Data does not exist", "warning");
             }
         } catch (err) {
-            alert("Failed to load from local storage");
+            set_message("Failed to load from local storage", "error");
         }
     };
     const save_to_file = () => {
@@ -89,12 +103,49 @@ const TopBar: React.FunctionComponent<{
         a.href = URL.createObjectURL(file);
         a.download = "data.json";
         a.click();
-        alert("Loading from file implemented yet");
+        set_message("Saved successfully", "success");
     };
     const load_from_file = () => {
-        // TODO: load from file
-        alert("Not implemented yet");
+        let el = inputRef.current;
+        if (el === null) {
+            set_message("Input element does not exist", "error");
+            return;
+        }
+        let files = el.files;
+        if (files === null) {
+            set_message("There are no files", "warning");
+            return;
+        }
+        let file = files[0];
+        if (!file) {
+            set_message("File is invalid", "warning");
+            return;
+        }
+        let reader = new FileReader();
+        reader.readAsText(file, "UTF-8");
+        reader.onload = evt => {
+            if (evt.target === null || evt.target.result === null) {
+                set_message("Error reading from file", "error");
+                return;
+            }
+            try {
+                props.LoadState(JSON.parse(evt.target.result as string));
+                set_message("Loaded successfully", "success");
+            } catch (err) {
+                set_message("Error parsing file", "error");
+            }
+        };
+        reader.onerror = evt => {
+            set_message("Error reading from file", "error");
+        }
     }
+
+    const onSnackbarClose = (event?: React.SyntheticEvent, reason?: string) => {
+        if (reason !== 'clickaway') {
+            setSnackbarOpen(false);
+        }
+    }
+
     return (
         <>
             <TopAppBar position="sticky">
@@ -123,12 +174,18 @@ const TopBar: React.FunctionComponent<{
                     <SettingButton variant="outlined" onClick={load_from_local_storage}>Load from Local Storage</SettingButton>
                     <Divider/>
                     <label htmlFor="upload-file-button">
-                        <Button variant="outlined" component="span" onClick={load_from_file}
+                        <Button variant="outlined" component="span" onClick={() => inputRef.current!.value = ''}
                          style={{width: "93.49%", margin: 8}}>Load from File</Button>
                     </label>
-                    <input type="file" id="upload-file-button" hidden/>
+                    <input ref={inputRef} type="file" id="upload-file-button" onChange={load_from_file} hidden/>
                 </DrawerContainer>
             </Drawer>
+            <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={onSnackbarClose}
+             anchorOrigin={{vertical: "bottom", horizontal: "left"}}>
+                <MuiAlert onClose={onSnackbarClose} severity={snackbarSeverity as "success" | "warning" | "error"}>
+                    {snackbarText}
+                </MuiAlert>
+            </Snackbar>
         </>
     );
 };
