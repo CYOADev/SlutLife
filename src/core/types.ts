@@ -1,3 +1,6 @@
+import React from 'react';
+
+
 import { Actions } from 'core/actions';
 
 
@@ -146,4 +149,5 @@ export type OptionPropType = {
     valid: boolean,
     valid_num: number,
     UpdateOptionValue: (value: ValueType) => void,
+    div_ref: React.RefObject<HTMLDivElement>;
 };

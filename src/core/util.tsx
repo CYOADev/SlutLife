@@ -10,7 +10,7 @@ import OptionNumeric from 'components/combined/OptionNumeric';
 import OptionText from 'components/combined/OptionText';
 import OptionMultiSelect from 'components/combined/OptionMultiSelect';
 
-import { ChangeMultipleOptions } from './actions';
+import { ChangeTab, ChangeMultipleOptions } from './actions';
 
 import {
     Labels,
@@ -100,6 +100,7 @@ let LAYOUT_DATA: ((string | number)[])[] = SHEET_DATA['layout_data'];
 const VARIABLE_DATA: VariableType = SHEET_DATA['variables'] as VariableType;
 const COL_NAMES = SHEET_DATA['col_names'];
 let ALL_VARIABLES: VariableInterface[] = [];
+let OPTION_REFS: React.RefObject<HTMLDivElement>[] = [];
 
 const Initialize = () => {
     ALL_OPTIONS = OPTION_DATA.map(el => new Option(el));
@@ -116,6 +117,7 @@ const Initialize = () => {
             el.conflict_string = get_conf_string(conflict);
         }
     })
+    console.log(LAYOUT_DATA);
     console.log(ALL_OPTIONS);
     console.log(ALL_VARIABLES);
     console.log(COL_NAMES);
@@ -132,24 +134,25 @@ const PostInit = (store: {dispatch: (action: ActionType) => void}) => {
 };
 
 const constructOption = (idx: number) => {
+    OPTION_REFS[idx] = React.createRef();
     switch (ALL_OPTIONS[idx].type[0]) {
         case OptionTypes.BO:
-            return <OptionCheckbox option_idx={idx} key={idx}/>;
+            return <OptionCheckbox div_ref={OPTION_REFS[idx]} option_idx={idx} key={idx}/>;
         case OptionTypes.CM:
-            return <OptionComment option_idx={idx} key={idx}/>;
+            return <OptionComment div_ref={OPTION_REFS[idx]} option_idx={idx} key={idx}/>;
         case OptionTypes.FL:
-            return <OptionFloat option_idx={idx} key={idx}/>;
+            return <OptionFloat div_ref={OPTION_REFS[idx]} option_idx={idx} key={idx}/>;
         case OptionTypes.NU:
-            return <OptionNumeric option_idx={idx} key={idx}/>;
+            return <OptionNumeric div_ref={OPTION_REFS[idx]} option_idx={idx} key={idx}/>;
         case OptionTypes.TE:
-            return <OptionText option_idx={idx} key={idx}/>;
+            return <OptionText div_ref={OPTION_REFS[idx]} option_idx={idx} key={idx}/>;
         case OptionTypes.EV:
         case OptionTypes.EV_EX:
         case OptionTypes.EV_CRE:
-            return <OptionMultiSelect option_idx={idx} key={idx}/>;
+            return <OptionMultiSelect div_ref={OPTION_REFS[idx]} option_idx={idx} key={idx}/>;
         case OptionTypes.OW:  // TODO: have actual custom option
         case OptionTypes.PU:  // TODO: have actual custom option
-            return <OptionCheckbox option_idx={idx} key={idx}/>;
+            return <OptionCheckbox div_ref={OPTION_REFS[idx]} option_idx={idx} key={idx}/>;
     }
 }
 
@@ -339,6 +342,34 @@ const load_save_state = (
     }).filter(el => el !== undefined) as [number, ValueType][];
 }
 
-export { Initialize, PostInit, ALL_OPTIONS, LAYOUT_DATA, COL_NAMES, ALL_VARIABLES, Option,
+const get_page = (option_idx: number) => {
+    for (let i = 0; i < LAYOUT_DATA.length; i++) {
+        let start = 0, end = LAYOUT_DATA[i].length - 1;
+        while (typeof LAYOUT_DATA[i][start] !== 'number') {
+            start++;
+        }
+        while (typeof LAYOUT_DATA[i][end] !== 'number') {
+            end--;
+        }
+        if (option_idx >= LAYOUT_DATA[i][start] && option_idx <= LAYOUT_DATA[i][end]) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+const scroll_to_option = (store: {dispatch: (action: ActionType) => void, getState: () => RootState}, option_idx: number) => {
+    const page_idx = get_page(option_idx);
+    if (store.getState().page_id !== page_idx) {
+        store.dispatch(ChangeTab(page_idx));
+        setTimeout(() => {
+            OPTION_REFS[option_idx].current?.scrollIntoView({block: "center"});
+        }, 0);
+    } else {
+        OPTION_REFS[option_idx].current?.scrollIntoView({block: "center", behavior: "smooth"});
+    }
+}
+
+export { Initialize, PostInit, ALL_OPTIONS, LAYOUT_DATA, COL_NAMES, ALL_VARIABLES, OPTION_REFS, Option,
     constructOption, get_requ_checked, get_conf_checked, get_name_strings, calc_affected,
-    get_save_state, load_save_state };
+    get_save_state, load_save_state, scroll_to_option };

@@ -21,7 +21,7 @@ const OptionComment: React.FunctionComponent<OptionPropType> = (props) => {
     const { option_idx, valid } = props;
     let option: Option = ALL_OPTIONS[option_idx];
     return (
-        <div>
+        <div ref={props.div_ref}>
             <OptionDivider option={option}/>
             <Container>
                 <OptionTitle option={option} valid={valid}/>

@@ -65,13 +65,14 @@ const get_credit_change = (new_state: RootState, id: number, value: ValueType) =
     }
     if (![OptionTypes.FL, OptionTypes.TE, OptionTypes.CM].includes(ALL_OPTIONS[id].type[0])) {
         if (ALL_OPTIONS[id].type[0] === OptionTypes.EV_CRE) {
-            num_credits = 0;
             if (typeof value === 'object') {
                 value.forEach(el => {
                     let temp_credits = ALL_OPTIONS[el].credits;
                     temp_credits = calc_affected(temp_credits, new_state.option[el].affected);
                     num_credits += temp_credits;
                 });
+            } else {
+                num_credits = 0;
             }
         } else {
             num_credits = new_value_number * num_credits

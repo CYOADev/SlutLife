@@ -38,7 +38,7 @@ const OptionText: React.FunctionComponent<OptionPropType> = (props) => {
     let option: Option = ALL_OPTIONS[option_idx];
     let state: RootState = useStore().getState();
     return (
-        <div>
+        <div ref={props.div_ref}>
             <OptionDivider option={option}/>
             <Container>
                 <OptionTitle option={option} valid={valid}/>

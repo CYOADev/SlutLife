@@ -1,11 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
+import { useStore } from 'react-redux';
 
 import Typography from '@material-ui/core/Typography';
+import Link from '@material-ui/core/Link';
 
 
 import colors from 'constants/Color';
-import { ALL_OPTIONS, get_conf_checked } from 'core/util';
+import { ALL_OPTIONS, get_conf_checked, scroll_to_option } from 'core/util';
 import { RootState } from 'core/types';
 
 
@@ -24,14 +26,22 @@ const NormalText = styled(Typography)`
 font-size: 13px;
 `
 
-const ConflictText = styled(Typography)<{value: number}>`
+const ConflictText = styled(Link)<{value: number}>`
 font-size: 13px;
 color: ${props => props.value ? colors.UncheckedColor : colors.CheckedColor};
 `;
 
-const ConflictElement: React.FunctionComponent<{name: string, value: boolean}> = (props) => {
+const ConflictElement: React.FunctionComponent<{name: string, value: boolean, option_idx: number}> = (props) => {
+    const store = useStore();
+    let on_click = (event: React.SyntheticEvent) => event.preventDefault();
+    if (props.option_idx >= 0) {
+        on_click = (event: React.SyntheticEvent) => {
+            event.preventDefault();
+            scroll_to_option(store, props.option_idx);
+        };
+    }
     return (
-        <ConflictText value={+props.value}>{props.name}</ConflictText>
+        <ConflictText href="#" underline="none" onClick={on_click} value={+props.value}>{props.name}</ConflictText>
     );
 };
 
@@ -51,7 +61,8 @@ const OptionConflict: React.FunctionComponent<{
     }
     for (let i = 0; i < conflict_string.length; i++) {
         let conflict_string_elem = conflict_string[i];
-        result.push((<ConflictElement name={conflict_string_elem} value={conflict_checked[i] as boolean} key={elem_idx++}/>))
+        result.push((<ConflictElement name={conflict_string_elem} value={conflict_checked[i] as boolean}
+            key={elem_idx++} option_idx={option.conflict![i]}/>))
         if (i !== conflict_string.length - 1) {
             result.push((<NormalText key={elem_idx++}>,&nbsp;</NormalText>))
         }

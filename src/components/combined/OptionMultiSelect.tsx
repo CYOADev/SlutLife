@@ -96,7 +96,7 @@ const OptionMultiSelect: React.FunctionComponent<OptionPropType> = (props) => {
     let state: RootState = useStore().getState();
     let { name_strings, name_strings_map, origin_name, filtered } = get_name_strings(option_idx, state);
     return (
-        <div>
+        <div ref={props.div_ref}>
             <OptionDivider option={option}/>
             <Container>
                 <SelectContainer>

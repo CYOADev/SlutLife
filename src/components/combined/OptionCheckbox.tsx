@@ -30,7 +30,7 @@ const OptionCheckbox: React.FunctionComponent<OptionPropType> = (props) => {
     let option: Option = ALL_OPTIONS[option_idx];
     let state: RootState = useStore().getState();
     return (
-        <div>
+        <div ref={props.div_ref}>
             <OptionDivider option={option}/>
             <Container>
                 <Checkbox icon={<FavoriteBorder />} checkedIcon={<Favorite />}

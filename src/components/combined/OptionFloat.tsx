@@ -58,7 +58,7 @@ const OptionFloat: React.FunctionComponent<OptionPropType> = (props) => {
     let float_value = (typeof value === "number") ? round(value as number + min) : "";
     let state: RootState = useStore().getState();
     return (
-        <div>
+        <div ref={props.div_ref}>
             <OptionDivider option={option}/>
             <Container>
                 <OptionTitle option={option} valid={valid}/>

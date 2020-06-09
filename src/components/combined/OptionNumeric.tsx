@@ -75,7 +75,7 @@ const OptionNumeric: React.FunctionComponent<OptionPropType> = (props) => {
         }
     }
     return (
-        <div>
+        <div ref={props.div_ref}>
             <OptionDivider option={option}/>
             <Container>
                 <NumericContainer>
