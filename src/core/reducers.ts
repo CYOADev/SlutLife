@@ -288,25 +288,38 @@ const propogateNumeric = (new_state: RootState, id: number, old_value: number, n
     });
 }
 
-const ChangeOptionState = (state: RootState, value: ValueType, id: number) => {
-    return produce(state, new_state => {
-        if (typeof value === 'object' && value.length === 0) {
-            value = false;
+const ChangeOptionState = (new_state: RootState, value: ValueType, id: number) => {
+    if (typeof value === 'object' && value.length === 0) {
+        value = false;
+    }
+    let { old_value, old_value_number, new_value_number } = get_credit_change(new_state, id, value);
+    propogateNumeric(new_state, id, old_value as number, value as number);
+    propogateEvery(new_state, id);
+    changeVariables(id, old_value_number, new_value_number, new_state);
+    setAffe(id, value, new_state)
+    if (!old_value !== !value) {
+        if (value) {
+            propogateTruthy(id, new_state);
+        } else {
+            propogateFalsy(id, new_state);
         }
-        let { old_value, old_value_number, new_value_number } = get_credit_change(new_state, id, value);
-        propogateNumeric(new_state, id, old_value as number, value as number);
-        propogateEvery(new_state, id);
-        changeVariables(id, old_value_number, new_value_number, new_state);
-        setAffe(id, value, new_state)
-        if (!old_value !== !value) {
-            if (value) {
-                propogateTruthy(id, new_state);
+    }
+};
+
+const ChangeMultipleState = (state: RootState, values: [number, ValueType][]) => {
+    return produce(state, new_state => {
+        const limit = values.length * values.length;
+        let num_loops = 0;
+        while (values.length > 0 && num_loops++ < limit) {
+            const [ option_idx, value ] = values.shift() as [number, ValueType];
+            if (new_state.option[option_idx].valid) {
+                ChangeOptionState(new_state, value, option_idx);
             } else {
-                propogateFalsy(id, new_state);
+                values.push([option_idx, value]);
             }
         }
     })
-};
+}
 
 const ChangeTabState = (state: RootState, id: number) => {
     return produce(state, new_state => {
@@ -320,13 +333,19 @@ const Reducer = (
 ) => {
     switch (action.type) {
         case Actions.CHANGE_OPTION_STATE:
-            return ChangeOptionState(state, action.payload.value, action.payload.id);
+            return produce(state, new_state => {
+                ChangeOptionState(new_state,action.payload.value, action.payload.id);
+            });
+        case Actions.CHANGE_MULTIPLE_OPTIONS:
+            return ChangeMultipleState(state, action.payload.state);
         case Actions.CHANGE_TAB:
             return ChangeTabState(state, action.payload.id);
         case Actions.RESET_STATE:
             return action.payload.state;
+        case Actions.DEFAULT_INIT:
+            break;
         default:
-            // console.error("ACTION NOT RECOGNIZED: " + action.type);
+            console.error(`Action ${(action as {type: string}).type} not recognized`);
     }
     return state;
 }

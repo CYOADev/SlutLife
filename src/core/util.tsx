@@ -10,7 +10,7 @@ import OptionNumeric from 'components/combined/OptionNumeric';
 import OptionText from 'components/combined/OptionText';
 import OptionMultiSelect from 'components/combined/OptionMultiSelect';
 
-import { ChangeOptionState } from './actions';
+import { ChangeMultipleOptions } from './actions';
 
 import {
     Labels,
@@ -22,6 +22,7 @@ import {
     VariableType,
     VariableInterface,
     ActionType,
+    ValueType,
 } from './types';
 
 
@@ -121,11 +122,13 @@ const Initialize = () => {
 };
 
 const PostInit = (store: {dispatch: (action: ActionType) => void}) => {
+    let cm_updates: [number, ValueType][] = [];
     ALL_OPTIONS.forEach((el, idx) => {
         if (el.type[0] === OptionTypes.CM) {
-            store.dispatch(ChangeOptionState(idx, true));
+            cm_updates.push([idx, true]);
         }
     });
+    store.dispatch(ChangeMultipleOptions(cm_updates));
 };
 
 const constructOption = (idx: number) => {
@@ -293,5 +296,49 @@ const calc_affected = (credits: number, affected: [number, number][]) => {
     return credits;
 }
 
+const get_hash = (val: string) => {
+    let hash = 0;
+    for (let i = 0; i < val.length; i++) {
+        hash = (hash << 5) - hash + val.charCodeAt(i);
+    }
+    return hash;
+}
+
+const get_save_state = (state: RootState) => {
+    let res: [number, number, ValueType][] = [];
+    state.option.forEach((el, idx) => {
+        const option = ALL_OPTIONS[idx];
+        if (el.value && option.type[0] !== OptionTypes.CM) {
+            const name_hash = get_hash(option.name);
+            const desc_hash = get_hash(option.details);
+            const value = el.value;
+            res.push([name_hash, desc_hash, value]);
+        }
+    });
+    return res;
+}
+
+const load_save_state = (
+    load_state: [number, number, ValueType][]
+) => {
+    let name_map: {[index: number]: number} = {};
+    let desc_map: {[index: number]: number} = {};
+    ALL_OPTIONS.forEach((el, idx) => {
+        name_map[get_hash(el.name)] = idx;
+        desc_map[get_hash(el.details)] = idx;
+    });
+    return load_state.map(el => {
+        let option_idx = name_map[el[0]];
+        if (option_idx === undefined) {
+            option_idx = desc_map[el[1]];
+            if (option_idx === undefined) {
+                return undefined;
+            }
+        }
+        return [option_idx, el[2]];
+    }).filter(el => el !== undefined) as [number, ValueType][];
+}
+
 export { Initialize, PostInit, ALL_OPTIONS, LAYOUT_DATA, COL_NAMES, ALL_VARIABLES, Option,
-    constructOption, get_requ_checked, get_conf_checked, get_name_strings, calc_affected };
+    constructOption, get_requ_checked, get_conf_checked, get_name_strings, calc_affected,
+    get_save_state, load_save_state };

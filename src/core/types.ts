@@ -59,7 +59,19 @@ export type ActionResetState = {
     };
 }
 
-export type ActionType = ActionChangeOptionStateType | ActionChangeTabType | ActionResetState;
+export type ActionChangeMultipleOptions = {
+    type: Actions.CHANGE_MULTIPLE_OPTIONS;
+    payload: {
+        state: [number, ValueType][];
+    };
+}
+
+export type ActionDefaultInit = {
+    type: Actions.DEFAULT_INIT;
+}
+
+export type ActionType = (ActionChangeOptionStateType | ActionChangeTabType
+    | ActionResetState | ActionChangeMultipleOptions | ActionDefaultInit);
 
 export type RequiresType = (number | number[])[];
 

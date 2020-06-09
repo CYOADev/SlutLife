@@ -21,7 +21,9 @@ import colors from 'constants/Color';
 
 import { RootState, DispatchType } from 'core/types';
 
-import { ChangeTab, ResetState } from 'core/actions';
+import { ChangeTab, ChangeMultipleOptions } from 'core/actions';
+
+import { get_save_state, load_save_state } from 'core/util';
 
 
 const CreditText = styled(Typography)`
@@ -59,16 +61,16 @@ const TopBar: React.FunctionComponent<{
     credits: number,
     page_id: number,
     UpdateTab: (page_id: number) => void,
-    LoadState: (state: RootState) => void,
 }> = (props) => {
     let tab_idx = 0;
     let [ drawerOpen, setDrawerOpen ] = useState(false);
-    let state: RootState = useStore().getState();
+    const store = useStore();
+    const state: RootState = store.getState();
     const inputRef = React.createRef<HTMLInputElement>();
 
     let [ snackbarOpen, setSnackbarOpen ] = useState(false);
-    let [ snackbarSeverity, setSnackbarSeverity ] = useState('');
-    let [ snackbarText, setSnackbarText ] = useState('success');
+    let [ snackbarSeverity, setSnackbarSeverity ] = useState('success');
+    let [ snackbarText, setSnackbarText ] = useState('');
 
     const set_message = (text: string, severity: string) => {
         setSnackbarOpen(true);
@@ -78,7 +80,7 @@ const TopBar: React.FunctionComponent<{
 
     const save_to_local_storage = () => {
         try {
-            localStorage.setItem("data", JSON.stringify(state));
+            localStorage.setItem("data", JSON.stringify(get_save_state(state)));
             set_message("Saved successfully", "success");
         } catch (err) {
             set_message("Failed to save to local storage", "error");
@@ -88,7 +90,7 @@ const TopBar: React.FunctionComponent<{
         let res = localStorage.getItem("data");
         try {
             if (res !== null) {
-                props.LoadState(JSON.parse(res));
+                store.dispatch(ChangeMultipleOptions(load_save_state(JSON.parse(res))));
                 set_message("Loaded successfully", "success");
             } else {
                 set_message("Data does not exist", "warning");
@@ -99,7 +101,7 @@ const TopBar: React.FunctionComponent<{
     };
     const save_to_file = () => {
         const a = document.createElement("a");
-        const file = new Blob([JSON.stringify(state)], {type: "application/json"});
+        const file = new Blob([JSON.stringify(get_save_state(state))], {type: "application/json"});
         a.href = URL.createObjectURL(file);
         a.download = "data.json";
         a.click();
@@ -129,7 +131,8 @@ const TopBar: React.FunctionComponent<{
                 return;
             }
             try {
-                props.LoadState(JSON.parse(evt.target.result as string));
+                store.dispatch(ChangeMultipleOptions(
+                    load_save_state(JSON.parse(evt.target.result as string))));
                 set_message("Loaded successfully", "success");
             } catch (err) {
                 set_message("Error parsing file", "error");
@@ -197,7 +200,6 @@ const mapStateToProps = (state: RootState) => ({
 
 const mapDispatchToProps = (dispatch: DispatchType) => ({
     UpdateTab: (page_id: number) => dispatch(ChangeTab(page_id)),
-    LoadState: (state: RootState) => dispatch(ResetState(state)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(TopBar);
