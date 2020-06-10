@@ -17,9 +17,10 @@ color: ${props => props.valid ? colors.ValidText : colors.InvalidText};
 `;
 
 const OptionDescription: React.FunctionComponent<{option: Option, valid: boolean}> = (props) => {
+    const string = props.option.details.split("\n").join("<br/>");
     return (
         <DescriptionContainer>
-            <Description valid={+props.valid}>{ props.option.details }</Description>
+            <Description valid={+props.valid} dangerouslySetInnerHTML={{ __html: string }} />
         </DescriptionContainer>
     );
 };
